@@ -1,0 +1,43 @@
+---
+title: "slide"
+format: revealjs
+editor: visual
+---
+
+```{r}
+library(learningtower)
+library(kableExtra)
+```
+
+## Student
+
+```{r}
+data(student_subset_2018)
+head(student_subset_2018) |> 
+  kbl() |> 
+  kable_paper() |> 
+  scroll_box(height = "500px")
+```
+
+
+## School
+
+
+```{r}
+data(school) 
+head(school) |> 
+  kbl() |> 
+  kable_paper()|> 
+  scroll_box()
+```
+
+
+## Countrycode
+
+```{r}
+data("countrycode") 
+head(countrycode) |> 
+  kbl() |> 
+  kable_paper()|> 
+  scroll_box()
+```
