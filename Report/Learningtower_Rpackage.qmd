@@ -34,15 +34,19 @@ library(gganimate)
 library(ggrepel)
 ```
 
-# Background
+## Background
+
+The learningtower package, which focusses on school and student-level data like performance indicators, socioeconomic backgrounds, and educational resources, contains educational datasets from international exams like PISA before 2022. After being cleaned and standardised, these datasets go through modifications including variable alignment for consistency and student-teacher ratio calculations. Key performance indicators include student performance in disciplines including reading, mathematics, and science; school and country identities; and educational resources (e.g., staff shortages, school size). The information makes it possible to analyse regional and worldwide trends as well as differences in educational systems, which sheds light on the variables influencing resource allocation and academic performance.
 
 ## Introduction
+A potent tool for analysing global educational data, the learningtower program focusses on Programme for International Student Assessment (PISA) statistics gathered over a number of years. These databases include precise school and student-level statistics from several nations, including student achievement in areas like reading, mathematics, and science, as well as contextual aspects like school resources, teacher-student ratios, and socioeconomic backgrounds. In order to make data from prior years (before 2022) appropriate for comprehensive cross-sectional and longitudinal investigations, the package makes sure that the data is cleaned, standardised, and converted to maintain consistency. With the help of this preparation, users can investigate worldwide trends in education, spot inequalities, and evaluate how various factors affect student achievements. We are now integrating the 2022 dataset, which has been effectively configured inside the package, guaranteeing that it is prepared for examination. With this update, the package can now offer the most accurate and up-to-date insights into global educational trends, allowing for greater cross-country comparison and analysis.
 
-### PISA
+
+## PISA
 
 The Organization for Economic Cooperation and Development [OECD](https://www.oecd.org/about/) is a global organization that aims to create better policies for better lives. Its mission is to create policies that promote prosperity, equality, opportunity, and well-being for all. [@oecd] [PISA](https://www.oecd.org/pisa/) is one of OECD's Programme for International Student Assessment. PISA assesses 15-year-old students' potential to apply their knowledge and abilities in reading, mathematics, and science to real-world challenges. OECD launched this in 1997, it was initially administered in 2000, and it currently includes over [80 nations](https://www.oecd.org/pisa/aboutpisa/pisa-participants.html). [@pisa] The PISA study, conducted every three years, provides comparative statistics on 15-year-old students' performance in reading, math, and science. This report describes how to utilize the `learningtower` package, which offers OECD PISA datasets from 2000 to 2022 in an easy-to-use format. The datasets comprise information on students' test results and other socioeconomic factors, as well as information on their schools, infrastructure and the countries participating in the program.
 
-### Learningtower Package
+## Learningtower Package
 
 ['learningtower'](https://cran.r-project.org/web/packages/learningtower/index.html) The R package [@learningtower] provides quick access to a variety of variables in the OECD PISA data collected over a three-year period from 2000 to 2022. This dataset includes information on the PISA test scores in mathematics, reading, and science. Furthermore, these datasets include information on other socioeconomic aspects, as well as information on their school and its facilities, as well as the nations participating in the program.
 
