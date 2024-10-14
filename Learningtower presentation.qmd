@@ -208,6 +208,86 @@ read_plotly
 
 An analysis of the gender gap in reading scores across several nations is shown in this graph. The gender gap in average reading scores is shown by the x-axis, which is computed as (Girls' scores - Boys' scores). The lines display the bootstrap confidence intervals, and the y-axis lists the nations. Each point on the y-axis reflects the average gender gap in reading performance. The red dots and lines illustrate that, in the majority of countries, girls perform significantly better than boys in reading, with scores veering towards positive values. The global pattern where girls tend to score higher on reading examinations is highlighted by the vertical zero line, which indicates no difference, and the fact that few countries display boys outperforming girls in reading.
 
+## Gender Gap Analysis : Science
+
+```{r}
+# Your data loading, filtering, and transformation logic as provided:
+load(here("data/countrycode.rda"))
+readRDS(here("data/student_2022.rds")) -> student_2022
+
+# Load the country names, and join
+student_country <- left_join(student_2022, countrycode, by = "country")
+
+# Subset data and drop missing values for science scores
+student <- student_country %>%
+  filter(!is.na(gender), !is.na(science), !is.na(stu_wgt))
+
+# Compute average science scores and gender diff
+if (!file.exists("data/sci_diff_conf_intervals.rda")) {
+  sci_diff_df <- student %>%
+    group_by(gender, country_name) %>%
+    summarise(avg = weighted.mean(science, stu_wgt), .groups = "drop") %>%
+    ungroup() %>%
+    pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+    mutate(diff = female - male, country_name = fct_reorder(country_name, diff))
+
+  # Compute bootstrap samples
+  boot_ests_sci <- map_dfr(1:100, ~{
+    student %>%
+      group_by(country_name, gender) %>%
+      sample_n(size = n(), replace = TRUE) %>%
+      summarise(avg = weighted.mean(science, stu_wgt), .groups = "drop") %>%
+      ungroup() %>%
+      pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+      mutate(diff = female - male, country_name = fct_reorder(country_name, diff)) %>%
+      mutate(boot_id = .x)
+  })
+
+  # Compute bootstrap confidence intervals
+  sci_diff_conf_intervals <- boot_ests_sci %>%
+    group_by(country_name) %>%
+    summarise(lower = sort(diff)[5], upper = sort(diff)[95], .groups = "drop") %>%
+    left_join(sci_diff_df, by = "country_name") %>%
+    mutate(country_name = fct_reorder(country_name, diff)) %>%
+    mutate(score_class = factor(case_when(
+      lower < 0 & upper <= 0 ~ "boys",
+      lower < 0 & upper >= 0 ~ "nodiff",
+      lower >= 0 & upper > 0 ~ "girls"),
+      levels = c("boys", "nodiff", "girls")))
+
+  save(sci_diff_conf_intervals, file = here("data/sci_diff_conf_intervals.rda"))
+} else {
+  load(here("data/sci_diff_conf_intervals.rda"))
+}
+
+# Plot science scores with ggplot2
+sci_plot <- ggplot(sci_diff_conf_intervals,
+                    aes(diff, country_name, col = score_class)) +
+  scale_colour_manual("", values = c("boys" = "#3288bd",
+                                     "nodiff" = "#969696",
+                                     "girls" = "#f46d43")) +
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_vline(xintercept = 0, color = "#969696") +
+  labs(y = "", x = "", title = "Science") +
+  theme(legend.position = "none") +
+  annotate("text", x = 50, y = 1, label = "Girls") +
+  annotate("text", x = -50, y = 1, label = "Boys") +
+  scale_x_continuous(limits = c(-70, 70),
+                     breaks = seq(-60, 60, 20),
+                     labels = abs(seq(-60, 60, 20)))
+
+# Convert the ggplot object to an interactive Plotly plot
+sci_plotly <- ggplotly(sci_plot)
+
+# Display the interactive Plotly plot
+sci_plotly
+```
+
+## Explanation of Gender Analysis: Science Scores
+
+This graph presents a **Gender Gap Analysis in Science Scores** across various countries, showing the difference between girls' and boys' average science scores. The x-axis represents the gender difference, calculated as **(Girls' scores - Boys' scores)**, while the y-axis lists the countries. The red points and lines indicate that girls outperform boys in science in several countries, while blue points and lines indicate that boys outperform girls. Grey points and lines represent countries where there is no significant gender difference. The vertical line at zero shows no difference, making it easy to see that in most countries, girls tend to perform better than boys in science, as shown by the positive values on the right side of the chart.
+
 ## EcoSocio Factors
 
 ```{r}
