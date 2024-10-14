@@ -1,0 +1,90 @@
+---
+title: "Learningtower: Comparative Analysis of PISA 2022 and Historical Data"
+format: revealjs
+editor: visual
+clean: true
+css: custom.css
+---
+
+
+```{r include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(patchwork)
+library(plotly)
+```
+
+
+## Contributors
+
+-   Dianne Cook
+
+-   Kevin Wang
+
+-   Priya Dingorkar
+
+-   Shabarish Sai Subramanian
+
+-   Gwan Ru Chen
+
+## Introduction
+
+The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities.
+
+## Collection of Data
+
+PISA data is collected every three years from over 70 countries, targeting 15-year-old students. The assessment measures students' abilities in reading, mathematics, and science through standardized tests. In addition to the tests, questionnaires are administered to students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more. This comprehensive approach helps provide insights into factors that affect student performance across different educational systems worldwide.
+
+## PISA Dataset
+
+```{r}
+#| echo: true
+student_data <- readRDS("Data/student_2022.rds")
+print(colnames(student_data))
+```
+
+The student dataset includes the following columns: year, country, school_id, student_id, mother_educ, father_educ, gender, computer, internet, math, read, science, stu_wgt, desk, room, dishwasher, television, computer_n, laptop_n, car, book, wealth, escs, and curiosity. These columns provide comprehensive details about the students' background, academic performance, and access to resources, offering a robust dataset for analysis of educational outcomes and socio-economic factors.
+
+
+
+
+## EcoSocio Factors
+
+```{r}
+p1 <- ggplot(data = student_country,
+             aes(x = math, y = read)) +
+  geom_hex() +
+  labs(x = "Math Scores",
+       y = "Reading Scores") +
+  theme(legend.position="none")
+
+p2 <- ggplot(data = student_country,
+             aes(x = math, y = science)) +
+  geom_hex() +
+  labs(x = "Math Scores",
+       y = "Science Scores") +
+  theme(legend.position = "none")
+
+p3 <- ggplot(data = student_country,
+             aes(x = read, y = science)) +
+  geom_hex() +
+  labs(x = "Reading Scores",
+       y = "Science Scores") +
+  theme(legend.position="none")
+
+p1+p2+p3
+```
+
+## Breakdown of the Plots
+
+- The first plot (left) contrasts reading scores (Y-axis) with math scores (X-axis). Students with higher arithmetic scores also typically have higher reading scores, as evidenced by the data points' highest concentration near the centre of both axes.
+
+- The second plot (middle) contrasts the science scores (Y-axis) with the math scores (X-axis). A link between math and science results is suggested by the distribution's high density around the centre of both axes, which indicates that students who do well in math also do well in science.
+
+- The third plot (right) contrasts the science scores (Y-axis) with the reading scores (X-axis). The hexbin illustrates, like the previous graphs, that kids who score higher on reading assessments typically do better in science, with most data points concentrated in the middle.
+
+
+
+
