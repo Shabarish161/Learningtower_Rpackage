@@ -6,7 +6,6 @@ clean: true
 css: custom.css
 ---
 
-
 ```{r include=FALSE}
 library(tidyverse)
 library(dplyr)
@@ -15,7 +14,6 @@ library(here)
 library(patchwork)
 library(plotly)
 ```
-
 
 ## Contributors
 
@@ -47,8 +45,168 @@ print(colnames(student_data))
 
 The student dataset includes the following columns: year, country, school_id, student_id, mother_educ, father_educ, gender, computer, internet, math, read, science, stu_wgt, desk, room, dishwasher, television, computer_n, laptop_n, car, book, wealth, escs, and curiosity. These columns provide comprehensive details about the students' background, academic performance, and access to resources, offering a robust dataset for analysis of educational outcomes and socio-economic factors.
 
+## Gender Gap Analysis: Maths
 
+```{r}
+# Your data loading, filtering, and transformation logic as provided:
+load(here("data/countrycode.rda"))
+readRDS(here("data/student_2022.rds")) -> student_2022
 
+# Load the country names, and join
+student_country <- left_join(student_2022, countrycode, by = "country")
+
+student <- student_country %>%
+  filter(!is.na(gender), !is.na(math), !is.na(stu_wgt))
+
+# Compute average math scores and gender diff
+if (!file.exists("data/math_diff_conf_intervals.rda")) {
+  math_diff_df <- student %>%
+    group_by(gender, country_name) %>%
+    summarise(avg = weighted.mean(math, stu_wgt), .groups = "drop") %>%
+    ungroup() %>%
+    pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+    mutate(diff = female - male, country_name = fct_reorder(country_name, diff))
+
+  # Compute bootstrap samples
+  set.seed(2024)
+  boot_ests_math <- map_dfr(1:100, ~{
+    student %>%
+      group_by(country_name, gender) %>%
+      sample_n(size = n(), replace = TRUE) %>%
+      summarise(avg = weighted.mean(math, stu_wgt), .groups = "drop") %>%
+      pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+      mutate(diff = female - male, country_name = fct_reorder(country_name, diff)) %>%
+      mutate(boot_id = .x)
+  })
+
+  # Compute bootstrap confidence intervals
+  math_diff_conf_intervals <- boot_ests_math %>%
+    group_by(country_name) %>%
+    summarise(lower = sort(diff)[5],
+              upper = sort(diff)[95],
+              .groups = "drop") %>%
+    left_join(math_diff_df, by = "country_name") %>%
+    mutate(country_name = fct_reorder(country_name, diff)) %>%
+    mutate(score_class = factor(case_when(
+      lower < 0 & upper <= 0 ~ "boys",
+      lower < 0 & upper >= 0 ~ "nodiff",
+      lower >= 0 & upper > 0 ~ "girls"),
+      levels = c("boys", "nodiff", "girls")))
+
+  save(math_diff_conf_intervals, file = here("data/math_diff_conf_intervals.rda"))
+} else {
+  load(here("data/math_diff_conf_intervals.rda"))
+}
+
+# Plot math with ggplot2
+math_plot <- ggplot(math_diff_conf_intervals,
+                    aes(diff, country_name, col = score_class)) +
+  scale_colour_manual("", values = c("boys" = "#3288bd",
+                                     "nodiff" = "#969696",
+                                     "girls" = "#f46d43")) +
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_vline(xintercept = 0, color = "#969696") +
+  labs(y = "", x = "", title = "Math") +
+  theme(legend.position = "none") +
+  annotate("text", x = 50, y = 1, label = "Girls") +
+  annotate("text", x = -50, y = 1, label = "Boys") +
+  scale_x_continuous(limits = c(-70, 70),
+                     breaks = seq(-60, 60, 20),
+                     labels = abs(seq(-60, 60, 20)))
+
+# Convert ggplot to interactive plotly plot
+math_plotly <- ggplotly(math_plot)
+
+# Display the interactive plotly plot
+math_plotly
+```
+
+## Explanation of Gender Gap: Math Scores
+
+With the gender difference in average maths scores (measured as girls' scores - boys' scores) on the x-axis, this graphic displays the gender gap analysis in mathematics across several nations. The y-axis lists the countries, and the lines indicate confidence intervals, and each point displays the average score difference. Grey points indicate no discernible gender difference, red points emphasise nations where girls outperform boys, and blue points indicate nations where boys exceed girls. The graph illustrates the different degrees of gender inequality in maths ability, with boys outperforming girls in many nations and the opposite tendency in a small number.
+
+## Gender Gap Analysis: Reading Scores
+
+```{r}
+# Your data loading, filtering, and transformation logic as provided:
+load(here("data/countrycode.rda"))
+readRDS(here("data/student_2022.rds")) -> student_2022
+
+# Load the country names, and join
+student_country <- left_join(student_2022, countrycode, by = "country")
+
+# Subset data and drop missing values for reading scores
+student <- student_country %>%
+  filter(!is.na(gender), !is.na(read), !is.na(stu_wgt))
+
+# Compute average reading scores and gender diff
+if (!file.exists("data/read_diff_conf_intervals.rda")) {
+  read_diff_df <- student %>%
+    group_by(gender, country_name) %>%
+    summarise(avg = weighted.mean(read, stu_wgt), .groups = "drop") %>%
+    ungroup() %>%
+    pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+    mutate(diff = female - male, country_name = fct_reorder(country_name, diff))
+
+  # Compute bootstrap samples
+  boot_ests_read <- map_dfr(1:100, ~{
+    student %>%
+      group_by(country_name, gender) %>%
+      sample_n(size = n(), replace = TRUE) %>%
+      summarise(avg = weighted.mean(read, stu_wgt), .groups = "drop") %>%
+      ungroup() %>%
+      pivot_wider(country_name, names_from = gender, values_from = avg) %>%
+      mutate(diff = female - male, country_name = fct_reorder(country_name, diff)) %>%
+      mutate(boot_id = .x)
+  })
+
+  # Compute bootstrap confidence intervals
+  read_diff_conf_intervals <- boot_ests_read %>%
+    group_by(country_name) %>%
+    summarise(lower = sort(diff)[5],
+              upper = sort(diff)[95],
+              .groups = "drop") %>%
+    left_join(read_diff_df, by = "country_name") %>%
+    mutate(country_name = fct_reorder(country_name, diff)) %>%
+    mutate(score_class = factor(case_when(
+      lower < 0 & upper <= 0 ~ "boys",
+      lower < 0 & upper >= 0 ~ "nodiff",
+      lower >= 0 & upper > 0 ~ "girls"),
+      levels = c("boys", "nodiff", "girls")))
+
+  save(read_diff_conf_intervals, file = here("data/read_diff_conf_intervals.rda"))
+} else {
+  load(here("data/read_diff_conf_intervals.rda"))
+}
+
+# Plot reading scores with ggplot2
+read_plot <- ggplot(read_diff_conf_intervals,
+                    aes(diff, country_name, col = score_class)) +
+  scale_colour_manual("", values = c("boys" = "#3288bd",
+                                     "nodiff" = "#969696",
+                                     "girls" = "#f46d43")) +
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
+  geom_vline(xintercept = 0, color = "#969696") +
+  labs(y = "", x = "", title = "Reading") +
+  theme(legend.position = "none") +
+  annotate("text", x = 50, y = 1, label = "Girls") +
+  annotate("text", x = -50, y = 1, label = "Boys") +
+  scale_x_continuous(limits = c(-70, 70),
+                     breaks = seq(-60, 60, 20),
+                     labels = abs(seq(-60, 60, 20)))
+
+# Convert the ggplot object to an interactive Plotly plot
+read_plotly <- ggplotly(read_plot)
+
+# Display the interactive Plotly plot
+read_plotly
+```
+
+## Explanation of Gender Gap: Reading Scores
+
+An analysis of the gender gap in reading scores across several nations is shown in this graph. The gender gap in average reading scores is shown by the x-axis, which is computed as (Girls' scores - Boys' scores). The lines display the bootstrap confidence intervals, and the y-axis lists the nations. Each point on the y-axis reflects the average gender gap in reading performance. The red dots and lines illustrate that, in the majority of countries, girls perform significantly better than boys in reading, with scores veering towards positive values. The global pattern where girls tend to score higher on reading examinations is highlighted by the vertical zero line, which indicates no difference, and the fact that few countries display boys outperforming girls in reading.
 
 ## EcoSocio Factors
 
@@ -79,12 +237,8 @@ p1+p2+p3
 
 ## Breakdown of the Plots
 
-- The first plot (left) contrasts reading scores (Y-axis) with math scores (X-axis). Students with higher arithmetic scores also typically have higher reading scores, as evidenced by the data points' highest concentration near the centre of both axes.
+-   The first plot (left) contrasts reading scores (Y-axis) with math scores (X-axis). Students with higher arithmetic scores also typically have higher reading scores, as evidenced by the data points' highest concentration near the centre of both axes.
 
-- The second plot (middle) contrasts the science scores (Y-axis) with the math scores (X-axis). A link between math and science results is suggested by the distribution's high density around the centre of both axes, which indicates that students who do well in math also do well in science.
+-   The second plot (middle) contrasts the science scores (Y-axis) with the math scores (X-axis). A link between math and science results is suggested by the distribution's high density around the centre of both axes, which indicates that students who do well in math also do well in science.
 
-- The third plot (right) contrasts the science scores (Y-axis) with the reading scores (X-axis). The hexbin illustrates, like the previous graphs, that kids who score higher on reading assessments typically do better in science, with most data points concentrated in the middle.
-
-
-
-
+-   The third plot (right) contrasts the science scores (Y-axis) with the reading scores (X-axis). The hexbin illustrates, like the previous graphs, that kids who score higher on reading assessments typically do better in science, with most data points concentrated in the middle.
