@@ -1,9 +1,8 @@
 ---
 title: "Learningtower: Comparative Analysis of PISA 2022 and Historical Data"
 format: revealjs
-editor: visual
-clean: true
 css: custom.css
+editor: visual
 ---
 
 ```{r include=FALSE}
@@ -29,11 +28,15 @@ library(plotly)
 
 ## Introduction
 
-The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities.
+A potent tool designed to simplify the study of data from the OECD's Programme for International Student Assessment (PISA) is the learningtower R package. This international evaluation, which focusses on the reading, arithmetic, and science skills of 15-year-old pupils, gathers data from more than 70 countries every three years. Researchers can easily access these statistics from 2000 to 2022 using the learningtower package, which makes it easier to examine trends in educational outcomes, student performance, and contextual factors like socioeconomic status. Learningtower facilitates more effective and efficient cross-country and longitudinal evaluations of educational systems around the world by streamlining the process of managing big, complicated datasets.
+
+The learningtower package's 2022 version is currently being updated to guarantee compatibility with the most recent PISA data and improved features. These enhancements are intended to assist scholars in carrying out more thorough comparative analyses, providing insights into how education is changing in different nations. The package is a useful tool for researchers, educators, and policy makers who are interested in educational performance and the factors that influence it because of its easy-to-use features, which help identify important patterns and linkages.
 
 ## Collection of Data
 
-PISA data is collected every three years from over 70 countries, targeting 15-year-old students. The assessment measures students' abilities in reading, mathematics, and science through standardized tests. In addition to the tests, questionnaires are administered to students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more. This comprehensive approach helps provide insights into factors that affect student performance across different educational systems worldwide.
+Every three years, data from more than 70 nations is gathered for the PISA (Programme for International Student Assessment), which focusses on the academic skills of 15-year-old children. Reading, maths, and science are the three main subjects in which PISA assesses student achievement using standardised examinations. These tests give a quick overview of students' abilities and knowledge, which serves as a foundation for comparing educational results between nations. International benchmarking made possible by PISA data assists nations in evaluating their educational systems and pinpointing areas where student learning needs to be improved.
+
+PISA collects a wealth of contextual information in addition to the examinations by distributing questionnaires to principals, teachers, and students. Numerous facets of the educational environment are covered by these surveys, such as teaching methods, school resources, and socioeconomic position. PISA offers a thorough grasp of the variables affecting student outcomes by combining contextual data with academic performance. This comprehensive method enables focused interventions to enhance teaching and learning worldwide by assisting researchers, policymakers, and educators in identifying critical factors that support or impede educational performance.
 
 ## PISA Dataset
 
@@ -286,7 +289,138 @@ sci_plotly
 
 ## Explanation of Gender Analysis: Science Scores
 
-This graph presents a **Gender Gap Analysis in Science Scores** across various countries, showing the difference between girls' and boys' average science scores. The x-axis represents the gender difference, calculated as **(Girls' scores - Boys' scores)**, while the y-axis lists the countries. The red points and lines indicate that girls outperform boys in science in several countries, while blue points and lines indicate that boys outperform girls. Grey points and lines represent countries where there is no significant gender difference. The vertical line at zero shows no difference, making it easy to see that in most countries, girls tend to perform better than boys in science, as shown by the positive values on the right side of the chart.
+This graph presents a Gender Gap Analysis in science scores across various countries, showing the difference between girls' and boys' average science scores. The x-axis represents the gender difference, calculated as( Girl's scores - Boy's Scores), while the y-axis lists the countries. The red points and lines indicate that girls outperform boys in science in several countries, while blue points and lines indicate that boys outperform girls. Grey points and lines represent countries where there is no significant gender difference. The vertical line at zero shows no difference, making it easy to see that in most countries, girls tend to perform better than boys in science, as shown by the positive values on the right side of the chart.
+
+## Word Map Displaying Gender Gap Analysis
+
+```{r}
+theme_map <- function(...) {
+  theme_minimal() +
+  theme(
+    text = element_text(),
+    axis.line = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid = element_blank()
+  )
+}
+
+region2country = function(region_name){
+  country_name = case_when(
+    region_name == "Brunei Darussalam" ~ "Brunei",
+    region_name == "United Kingdom" ~ "UK",
+    region_name %in% c("Macau SAR China", "B-S-J-Z (China)",
+                        "Hong Kong SAR China") ~ "China",
+    region_name == "Korea" ~ "South Korea",
+    region_name == "North Macedonia" ~ "Macedonia",
+    region_name == "Baku (Azerbaijan)" ~ "Baku",
+    region_name %in% c("Moscow Region (RUS)", "Tatarstan (RUS)",
+                        "Russian Federation") ~ "Russia",
+    region_name == "Slovak Republic" ~ "Slovakia",
+    region_name == "Chinese Taipei" ~ "Taiwan",
+    region_name == "United States" ~ "USA",
+    TRUE ~ as.character(region_name))
+}
+```
+
+```{r}
+math_map_data <- math_diff_conf_intervals  %>%
+  dplyr::mutate(country_name = region2country(region_name = country_name)) 
+
+world_map <- map_data("world") %>%
+  filter(region != "Antarctica") %>%
+  fortify() %>%
+  rename(country_name = region)
+
+math_world_data <- full_join(
+  x = math_map_data,
+  y = world_map,
+  by = "country_name") %>% 
+  rename(Country = country_name,
+         math = diff) %>%
+  mutate(math = round(math, digits = 2))
+```
+
+```{r}
+read_map_data <- read_diff_conf_intervals %>%
+  dplyr::mutate(country = region2country(region_name = country_name))
+
+world_map <- map_data("world") %>%
+  filter(region != "Antarctica") %>%
+  fortify() %>%
+  rename(country_name = region)
+
+read_world_data <- full_join(
+  x = read_map_data,
+  y = world_map,
+  by = "country_name") %>% 
+  rename(Country = country_name,
+         Reading = diff) %>%
+  mutate(Reading = round(Reading, digits = 2))
+```
+
+```{r}
+sci_map_data <- sci_diff_conf_intervals %>%
+  dplyr::mutate(country = region2country(region_name = country_name))
+
+world_map <- map_data("world") %>%
+  filter(region != "Antarctica") %>%
+  fortify() %>%
+  rename(country_name = region)
+
+sci_world_data <- full_join(
+  x = sci_map_data,
+  y = world_map,
+  by = "country_name") %>% 
+  rename(Country = country_name,
+         Science = diff)  %>%
+  mutate(Science = round(Science, digits = 2))
+```
+
+```{r}
+math_dat <- math_world_data %>%
+  dplyr::select(Country, math, lat, long, group)
+
+read_dat <- read_world_data %>%
+  dplyr::select(Country, Reading, lat, long, group)
+
+sci_dat <- sci_world_data %>%
+  dplyr::select(Country, Science, lat, long, group)
+
+math_read_dat <- left_join(math_dat,
+                           read_dat,
+                           by = c("Country","lat", "long", "group"))
+
+math_read_sci_dat <- left_join(math_read_dat,
+                           sci_dat,
+                           by = c("Country","lat", "long", "group"))
+
+math_read_sci_dat_wider <- math_read_sci_dat %>%
+    pivot_longer(cols = c(2,6,7), names_to = "subjects")
+
+mrs_maps <- ggplot(math_read_sci_dat_wider,
+       aes(x = long,
+           y = lat,
+           group = group)) +
+  geom_polygon(aes(fill= value,
+                   label = Country)) +
+  facet_wrap(~subjects, scales = "free", nrow = 3) +
+  theme_map() +
+  labs(title = "World Map displaying Gender Gap Scores in Math, Reading and Science")  +
+  scale_fill_distiller(palette = "Spectral")
+```
+
+```{r}
+ggplotly(mrs_maps, width=800, height=600)
+```
+
+## Explanation for Gender Gap by Countries
+
+The picture displays three global maps that illustrate the gender gap scores for three subjects—math, science, and reading—across various geographical locations. The gender gap value is shown by the colour gradient, where greater values are indicated by darker red and lower values by darker green. Each map shows the gender disparity in schooling in different regions, with notable differences between continents. For example, reading displays more red, indicating a wider gender disparity favouring one gender over the other, but maths exhibits green in many places of the world, indicating fewer gender gaps. Though there are some noticeable regional variations, the scientific map looks comparable to the maths map.
 
 ## EcoSocio Factors
 
@@ -322,3 +456,159 @@ p1+p2+p3
 -   The second plot (middle) contrasts the science scores (Y-axis) with the math scores (X-axis). A link between math and science results is suggested by the distribution's high density around the centre of both axes, which indicates that students who do well in math also do well in science.
 
 -   The third plot (right) contrasts the science scores (Y-axis) with the reading scores (X-axis). The hexbin illustrates, like the previous graphs, that kids who score higher on reading assessments typically do better in science, with most data points concentrated in the middle.
+
+## Temporal Analysis 
+
+```{r}
+# Load student data, and filter to country, cache a copy of the data
+# to save downloading every time paper is knitted
+
+# if (!file.exists("data/student_all.rda")) {
+#   student_all <- load_student("all")
+#   save(student_all, file="data/student_all.rda")
+# } else {
+#   load("data/student_all.rda")
+# }
+student_all <- load(here("data/student.rda"))
+# Give countries their name, subset to four, and select only variables needed
+student_country <- left_join(student,
+                             countrycode,
+                             by = "country") %>%
+  dplyr::filter(country_name %in%
+                  c("Australia",
+                    "Germany",
+                    "Peru",
+                    "Qatar",
+                    "Belgium",
+                    "Brazil",
+                    "Denmark",
+                    "Greece",
+                    "Thailand",
+                    "Singapore",
+                    "Canada",
+                    "Portugal")) %>%
+  dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
+  na.omit() %>%
+  pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
+
+# Compute the bootstrap confidence intervals, and cache result
+if (!file.exists("data/all_bs_cf.rda")) {
+  all_bootstrap <- map_dfr(1:100, ~{
+    student_country %>%
+    group_by(country_name, #year,
+             subject) %>%
+    #sample_n(size = n(), replace = TRUE) %>%
+    mutate(year = sample(year, replace=FALSE)) %>%
+    group_by(country_name, year,
+             subject) %>%
+    dplyr::summarise(
+      avg = weighted.mean(score, w = stu_wgt, na.rm = TRUE), .groups = "drop") %>%
+    #ungroup() %>%
+    mutate(boot_id = .x)
+  })
+
+  all_bootstrap_ci <- all_bootstrap %>%
+    group_by(country_name, year,
+             subject) %>%
+    summarise(
+      lower = min(avg), # sort(avg)[5],
+      upper = max(avg), #sort(avg)[95],
+      .groups = "drop")
+
+  # compute original estimate of average and join
+  all_avg <- student_country %>%
+    group_by(country_name, year, subject) %>%
+    summarise(
+      avg = weighted.mean(score,
+                          w = stu_wgt, na.rm = TRUE),
+      .groups = "drop")
+
+  all_bs_cf <- left_join(all_avg,
+                      all_bootstrap_ci,
+                      by = c("country_name",
+                             "year",
+                             "subject"))
+
+  save(all_bs_cf, file= here("data/all_bs_cf.rda"))
+
+} else {
+  load(here("data/all_bs_cf.rda"))
+}
+
+```
+
+```{r}
+all_bs_cf <- all_bs_cf %>%
+  mutate(year = as.numeric(as.character(year)),
+         country_name = factor(country_name))
+                 # levels = c("Singapore",
+                 #          "Australia",
+                 #          "New Zealand",
+                 #          "Germany",
+                 #          "Qatar",
+                 #          "Indonesia"))
+
+
+country_names_highlight <- c("Australia", 
+                             "Germany", 
+                             "Peru", 
+                             "Qatar", 
+                             "Belgium", 
+                             "Brazil", 
+                             "Denmark", 
+                             "Greece",
+                             "Thailand", 
+                             "Singapore", 
+                             "Canada", 
+                             "Portugal")
+
+math_all_bs_cf_plot <- all_bs_cf %>% 
+  dplyr::filter(subject == "math") %>% 
+  ggplot(aes(x = year, 
+             y = avg)) +
+  geom_point(alpha = 0.45) +
+  geom_line(aes(group = country_name)) +
+  gghighlight::gghighlight(country_name %in% country_names_highlight) +
+  labs(
+    title = "Maths",
+     x = "",
+     y = "Score") 
+
+
+read_all_bs_cf_plot <- all_bs_cf %>% 
+  dplyr::filter(subject == "read") %>% 
+  ggplot(aes(x = year, 
+      y = avg)) +
+  geom_point(alpha = 0.45) +
+  geom_line(aes(group = country_name)) +
+  gghighlight::gghighlight(country_name %in% country_names_highlight) +
+  labs(
+    title = "Reading",
+     x = "",
+     y = "Score") 
+
+sci_all_bs_cf_plot <- all_bs_cf %>% 
+  dplyr::filter(subject == "science") %>% 
+  ggplot(aes(x = year, 
+      y = avg)) +
+  geom_point(alpha = 0.45) +
+  geom_line(aes(group = country_name)) +
+  gghighlight::gghighlight(country_name %in% country_names_highlight) +
+  labs(
+    title = "Science",
+     x = "",
+     y = "Score")
+
+
+math_all_bs_cf_plot + read_all_bs_cf_plot + sci_all_bs_cf_plot
+```
+
+## Explanation for Temporal Analysis
+
+From 2000 to 2022, the three charts show the temporal trends of math, reading, and science student performance scores in various nations. Labels are used to draw attention to certain countries' performance trends, and each line shows the average score for that nation.
+
+-   Mathematics: Singapore routinely ranks top, whereas Brazil and Peru have lower scores with some positive trends. Around the 500 score point, nations like Belgium, Australia, and Germany continue to perform comparatively steadily.
+
+-   Reading: Australia, Belgium, and Canada continue to do well, while Singapore once again takes the lead. Thailand, Brazil, and Peru perform worse, though they gradually become better.
+
+-   Science: Australia, Germany, and Belgium retain mid-range ratings, while Singapore and Canada perform at the top. Despite having lower scores, Brazil and Peru have shown some development.
