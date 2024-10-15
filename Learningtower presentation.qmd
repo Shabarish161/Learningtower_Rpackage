@@ -1,6 +1,21 @@
 ---
 title: "Learningtower: Comparative Analysis of PISA 2022 and Historical Data"
-format: revealjs
+author: "Shabarish Sai and Gwen Ru Chen"
+date: "18 Oct 2024"
+format: 
+  revealjs:
+    theme: white
+    transition: fade
+    slide-number: true
+    incremental: true
+    background-transition: fade
+    width: 1200
+    height: 800
+    controls: true
+    center: true
+    progress: true
+    hash: true
+    history: true
 css: custom.css
 editor: visual
 ---
@@ -16,27 +31,23 @@ library(plotly)
 
 ## Contributors
 
--   Dianne Cook
-
--   Kevin Wang
-
--   Priya Dingorkar
-
 -   Shabarish Sai Subramanian
 
--   Gwan Ru Chen
+-   Gwen Ru Chen
+
+-   Dianne Cook
+
+-   Kevin Y.X. Wang
+
+-   Priya Ravindra Dingorkar
 
 ## Introduction
 
-A potent tool designed to simplify the study of data from the OECD's Programme for International Student Assessment (PISA) is the learningtower R package. This international evaluation, which focusses on the reading, arithmetic, and science skills of 15-year-old pupils, gathers data from more than 70 countries every three years. Researchers can easily access these statistics from 2000 to 2022 using the learningtower package, which makes it easier to examine trends in educational outcomes, student performance, and contextual factors like socioeconomic status. Learningtower facilitates more effective and efficient cross-country and longitudinal evaluations of educational systems around the world by streamlining the process of managing big, complicated datasets.
-
-The learningtower package's 2022 version is currently being updated to guarantee compatibility with the most recent PISA data and improved features. These enhancements are intended to assist scholars in carrying out more thorough comparative analyses, providing insights into how education is changing in different nations. The package is a useful tool for researchers, educators, and policy makers who are interested in educational performance and the factors that influence it because of its easy-to-use features, which help identify important patterns and linkages.
+The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities
 
 ## Collection of Data
 
-Every three years, data from more than 70 nations is gathered for the PISA (Programme for International Student Assessment), which focusses on the academic skills of 15-year-old children. Reading, maths, and science are the three main subjects in which PISA assesses student achievement using standardised examinations. These tests give a quick overview of students' abilities and knowledge, which serves as a foundation for comparing educational results between nations. International benchmarking made possible by PISA data assists nations in evaluating their educational systems and pinpointing areas where student learning needs to be improved.
-
-PISA collects a wealth of contextual information in addition to the examinations by distributing questionnaires to principals, teachers, and students. Numerous facets of the educational environment are covered by these surveys, such as teaching methods, school resources, and socioeconomic position. PISA offers a thorough grasp of the variables affecting student outcomes by combining contextual data with academic performance. This comprehensive method enables focused interventions to enhance teaching and learning worldwide by assisting researchers, policymakers, and educators in identifying critical factors that support or impede educational performance.
+PISA data is collected every three years from over 70 countries, targeting 15-year-old students. The assessment measures students' abilities in reading, mathematics, and science through standardized tests. In addition to the tests, questionnaires are administered to students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more. This comprehensive approach helps provide insights into factors that affect student performance across different educational systems worldwide.
 
 ## PISA Dataset
 
@@ -101,28 +112,30 @@ if (!file.exists("data/math_diff_conf_intervals.rda")) {
   load(here("data/math_diff_conf_intervals.rda"))
 }
 
-# Plot math with ggplot2
 math_plot <- ggplot(math_diff_conf_intervals,
-                    aes(diff, country_name, col = score_class)) +
+                    aes(x = diff, y = fct_reorder(country_name, diff), col = score_class)) +
+  geom_point(size = 3) +                                           # Larger points for better visibility
+  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.5) +    # Error bars with appropriate width
+  geom_vline(xintercept = 0, color = "gray", linetype = "dashed") +# Dashed line at x=0 for reference
   scale_colour_manual("", values = c("boys" = "#3288bd",
                                      "nodiff" = "#969696",
-                                     "girls" = "#f46d43")) +
-  geom_point() +
-  geom_errorbar(aes(xmin = lower, xmax = upper), width = 0) +
-  geom_vline(xintercept = 0, color = "#969696") +
-  labs(y = "", x = "", title = "Math") +
-  theme(legend.position = "none") +
-  annotate("text", x = 50, y = 1, label = "Girls") +
-  annotate("text", x = -50, y = 1, label = "Boys") +
-  scale_x_continuous(limits = c(-70, 70),
-                     breaks = seq(-60, 60, 20),
-                     labels = abs(seq(-60, 60, 20)))
+                                     "girls" = "#f46d43")) +        # Custom colors for groups
+  labs(y = "Country", x = "Difference (Girls - Boys)", title = "Math Gender Gap Analysis") + # Axis titles
+  theme_minimal() +                                                # Clean theme
+  theme(
+    axis.text.y = element_text(size = 8, hjust = 1),               # Smaller y-axis text, aligned left
+    axis.text.x = element_text(size = 10),                         # Normal size for x-axis labels
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), # Centered title, bold
+    plot.margin = margin(20, 20, 20, 150)                          # Add margin for better readability
+  ) +
+  scale_x_continuous(limits = c(-70, 70),                          # Set x-axis limits
+                     breaks = seq(-60, 60, 20),                   # Define breaks
+                     labels = abs(seq(-60, 60, 20))) +             # Show absolute values for x-axis
+  annotate("text", x = 55, y = 1, label = "Girls", size = 4, color = "red") + # Label for Girls
+  annotate("text", x = -55, y = 1, label = "Boys", size = 4, color = "blue")  # Label for Boys
 
-# Convert ggplot to interactive plotly plot
-math_plotly <- ggplotly(math_plot)
-
-# Display the interactive plotly plot
-math_plotly
+# Print the plot
+print(math_plot)
 ```
 
 ## Explanation of Gender Gap: Math Scores
@@ -291,7 +304,7 @@ sci_plotly
 
 This graph presents a Gender Gap Analysis in science scores across various countries, showing the difference between girls' and boys' average science scores. The x-axis represents the gender difference, calculated as( Girl's scores - Boy's Scores), while the y-axis lists the countries. The red points and lines indicate that girls outperform boys in science in several countries, while blue points and lines indicate that boys outperform girls. Grey points and lines represent countries where there is no significant gender difference. The vertical line at zero shows no difference, making it easy to see that in most countries, girls tend to perform better than boys in science, as shown by the positive values on the right side of the chart.
 
-## Word Map Displaying Gender Gap Analysis
+## 
 
 ```{r}
 theme_map <- function(...) {
@@ -457,7 +470,7 @@ p1+p2+p3
 
 -   The third plot (right) contrasts the science scores (Y-axis) with the reading scores (X-axis). The hexbin illustrates, like the previous graphs, that kids who score higher on reading assessments typically do better in science, with most data points concentrated in the middle.
 
-## Temporal Analysis 
+## Temporal Analysis
 
 ```{r}
 # Load student data, and filter to country, cache a copy of the data
@@ -612,3 +625,9 @@ From 2000 to 2022, the three charts show the temporal trends of math, reading, a
 -   Reading: Australia, Belgium, and Canada continue to do well, while Singapore once again takes the lead. Thailand, Brazil, and Peru perform worse, though they gradually become better.
 
 -   Science: Australia, Germany, and Belgium retain mid-range ratings, while Singapore and Canada perform at the top. Despite having lower scores, Brazil and Peru have shown some development.
+
+## Limitations
+
+Although the Learningtower package makes it easier to access the PISA dataset, it has drawbacks, including less customisation options for more complex analyses, performance problems with huge datasets, and possible incompatibilities with other R versions. Furthermore, for more complicated use scenarios, the documentation might not be adequate. Inherent limitations of the PISA dataset include the fact that it is cross-sectional, which precludes longitudinal tracking, the possibility of sample biases, and the difficulties caused by linguistic and cultural differences that could compromise the comparability of results. Furthermore, the depth of analysis may be constrained by incomplete or missing data, a lack of socioeconomic indicators, and out-of-date background questionnaires. Lastly, the emphasis on standardised test scores may obscure more important educational objectives that the tests do not measure, such creativity and critical thinking.
+
+#                       Thank You 
