@@ -28,12 +28,15 @@ library(learningtower)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
-library(viridis)
 library(patchwork)
 library(plotly)
 library(ggbeeswarm)
 library(gganimate)
 library(ggrepel)
+```
+
+```{r, include = FALSE}
+source(here("setup.R"))
 ```
 
 ## Background
