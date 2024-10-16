@@ -1,21 +1,21 @@
 ---
 title: "Learningtower: Comparative Analysis of PISA 2022 and Historical Data"
-author: "Shabarish Sai and Gwen Ru Chen"
+title-slide-attributes: 
+  data-background-image: "../images/bg.png"
+  data-background-size: 100%
+author: "Shabarish Sai and Guan Ru Chen"
 date: "18 Oct 2024"
-format: 
+institute: "Department of Econometrics and Business Statistics"
+format:
   revealjs:
-    theme: white
-    transition: fade
-    slide-number: true
-    incremental: true
-    background-transition: fade
-    width: 1200
-    height: 800
-    controls: true
-    center: true
-    progress: true
-    hash: true
-    history: true
+    multiplex: false
+    slide-number: c/t
+    slide-tone: false
+    theme: "../assets/monash.scss"
+    width: 1600
+    height: 900
+    margin: 0.05
+    embed-resources: true
 css: custom.css
 editor: visual
 ---
@@ -29,11 +29,15 @@ library(patchwork)
 library(plotly)
 ```
 
+```{r, include = FALSE}
+source(here("setup.R"))
+```
+
 ## Contributors
 
 -   Shabarish Sai Subramanian
 
--   Gwen Ru Chen
+-   Guan Ru Chen
 
 -   Dianne Cook
 
@@ -630,4 +634,4 @@ From 2000 to 2022, the three charts show the temporal trends of math, reading, a
 
 Although the Learningtower package makes it easier to access the PISA dataset, it has drawbacks, including less customisation options for more complex analyses, performance problems with huge datasets, and possible incompatibilities with other R versions. Furthermore, for more complicated use scenarios, the documentation might not be adequate. Inherent limitations of the PISA dataset include the fact that it is cross-sectional, which precludes longitudinal tracking, the possibility of sample biases, and the difficulties caused by linguistic and cultural differences that could compromise the comparability of results. Furthermore, the depth of analysis may be constrained by incomplete or missing data, a lack of socioeconomic indicators, and out-of-date background questionnaires. Lastly, the emphasis on standardised test scores may obscure more important educational objectives that the tests do not measure, such creativity and critical thinking.
 
-#                       Thank You 
+# Thank You

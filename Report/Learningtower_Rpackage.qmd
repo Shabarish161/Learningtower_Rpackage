@@ -86,8 +86,15 @@ By using Slack for dynamic conversations and Notion for structured documentation
 ### Gender Gap
 
 ```{r math plot}
-load(here("data/countrycode.rda"))
-readRDS(here("data/student_2022.rds")) -> student_2022
+# devtools::install_github("kevinwang09/learningtower")
+# Get the 2022 student data
+if (!file.exists("data/student_2022.rds")) {
+  student_2022 <- load_student("2022")
+  saveRDS(student_2022, file = here("data/student_2022.rds"))
+} else {
+  readRDS(here("data/student_2022.rds"))
+}
+data(countrycode, package = "learningtower")
 
 # Load the country names, and join
 student_country <- left_join(student_2022,
