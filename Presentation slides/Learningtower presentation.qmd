@@ -652,6 +652,11 @@ father_qual_math <- ggplot(father_qual_math_read_sci_data,
 father_qual_math + mother_qual_math
 ```
 
+::: info 
+Parents who have tend to have higher levels of education, their children are more likely to perform better in academics.
+:::
+
+
 ## 🧑‍💻Impact of Technology Assistance
 
 ```{r}
@@ -690,6 +695,10 @@ internet_plot <- int_math_read_sci_data %>%
 #| echo: false
 computer_plot + internet_plot
 ```
+
+::: info
+All nations have higher scores in student performance when they own a computer and have access to the internet.
+:::
 
 ## Temporal Analysis {.transition-slide .center style="text-align: center;"}
 
@@ -739,10 +748,12 @@ stu_ggap_summ_long %>%
        y = "Gender Gap Values")
 ```
 
+::: info
+The gap has remained fairly stable over time, without significant changes. However, most of gaps became smaller from 2018 to 2022.
+:::
+
 ## 🔎Highlighting Key Countries
 
-::: panel-tabset
-### All Subjects
 
 ```{r}
 #| fig-width: 12
@@ -778,33 +789,6 @@ stu_ggap_summ_plotdf %>%
        title = "Highlighting key countries across all three subjects")
 ```
 
-### Math
-
-```{r}
-#| fig-width: 12
-#| fig-height: 5
-#| echo: false
-stu_gap_math_near  <-  stu_ggap_summ %>%
-  as_tsibble(key = country, index = year) %>% 
-  features(gap_math_wmean, feat_brolgar) %>%
-  keys_near(key = country, var = median)
-
-stu_gap_math_plotdf  <-  stu_ggap_summ %>%
-  as_tibble() %>%
-  left_join(stu_gap_math_near, by = "country") %>%
-  left_join(countrycode, by = "country") %>%
-  mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
-
-stu_gap_math_plotdf %>%
-  ggplot(aes(x = year, y = gap_math_wmean,
-             group = country, colour = stat)) +
-  geom_line() +
-  gghighlight::gghighlight(!is.na(stat), label_key = label_stats_country) + 
-  labs(x = "Year", 
-       y = "Values", 
-       title = "Highlighting key countries for maths")
-```
-:::
 
 ## 🛠️Limitations & Discussion
 
