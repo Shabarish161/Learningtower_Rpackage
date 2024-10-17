@@ -58,55 +58,47 @@ student_country <- left_join(student_2022_full,
 w_mean = function(x, w){weighted.mean(x = x, w = w, na.rm=TRUE)}
 ```
 
-## Contributors 
-:::: {.columns}
+## 👷Contributors
 
+<br><br>
+
+::: columns
 ::: {.column width="20%"}
-<img src="../images/brickwork.png">
-Shabarish Sai Subramanian
+<img src="../images/masonry.png"/> Shabarish Sai Subramanian
 :::
 
 ::: {.column width="20%"}
-<img src="../images/brickwork.png">
-Guan Ru, Chen
+<img src="../images/masonry.png"/> Guan Ru, Chen
 :::
 
 ::: {.column width="20%"}
-<img src="../images/brickwork.png">
-Dianne Cook
+<img src="../images/masonry_f.png"/> Dianne Cook
 :::
 
 ::: {.column width="20%"}
-<img src="../images/brickwork.png">
-Kevin Y.X. Wang
+<img src="../images/masonry.png"/> Kevin Y.X. Wang
 :::
 
 ::: {.column width="20%"}
-<img src="../images/brickwork.png">
-Priya Ravindra Dingorkar
+<img src="../images/masonry_f.png"/> Priya Ravindra Dingorkar
+:::
 :::
 
-::::
-
-
-
+<br><br>
 
 ## Introduction {.transition-slide .center style="text-align: center;"}
 
+## `Learningtower` Package {background-image="../images/logo.png" background-position="90% 5%" background-size="12%"}
 
-## `Learningtower` Package {background-image="../images/logo.png" background-position="90% 5%" background-size="14%"}
-
-<br><br><br><br>
-The `Learningtower` package provides access to PISA datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. 
+<br><br><br><br> The `Learningtower` package provides access to PISA datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors.
 
 In `Learningtower` contain mainly 3 datasets:
 
-- [Student]{.monash-blue2} is a dataset of students scores in mathematics, reading and science.
-- [School]{.monash-blue2} is a dataset of school's detailed information, i.e. school weight, school funding distribution, private/public sectors, etc.
-- [Countrycode]{.monash-blue2} is a dataset of a mapping of a country/region’s ISO code to its full name.
+-   [Student]{.monash-blue2} is a dataset of students scores in mathematics, reading and science.
+-   [School]{.monash-blue2} is a dataset of school's detailed information, i.e. school weight, school funding distribution, private/public sectors, etc.
+-   [Countrycode]{.monash-blue2} is a dataset of a mapping of a country/region’s ISO code to its full name.
 
-
-## What is PISA (Programme for International Student Assessment)? 
+## What is PISA (Programme for International Student Assessment)?
 
 ::: {.callout-tip title="Global Examination"}
 Measures student performance in reading, math, and science
@@ -120,13 +112,25 @@ Assesses 15-year-old students' knowledge and skills
 81 OECD member countries, 700,000+ students in **2022**
 :::
 
-:::{.callout-tip title="Educational Environment Research"}
+::: {.callout-tip title="Educational Environment Research"}
 Additional questionnaires done by students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more.
 :::
 
-## Methodology
+## 📒Methodology
 
-## PISA Dataset
+-   **Step 1**: Downloaded original dataset from the PISA website.
+
+<br><br>
+
+-   **Step 2**: Data cleaning and wrangling with the appropriate script, the variables of interest were be re-categorised and saved into appropriate data type.
+
+<br><br>
+
+-   **Step 3**: Upload new datasets into [package repo](https://github.com/kevinwang09/learningtower) and run package checks to prepare for CRAN submission.
+
+<br><br>
+
+## 📚PISA Dataset: `Student`
 
 ```{r Dataset}
 #| echo: false
@@ -136,31 +140,26 @@ kable(head(student_2022_full)) |>
   scroll_box(width = "100%", height = "50%")
 ```
 
+## ✍️Variable Description
 
-## Variable Description
 From original dataset, We collect the following variables:
 
-- [**Year**]{.monash-blue2}
+-   [**Year**]{.monash-blue2}
 
-- [**Country**]{.monash-blue2}
+-   [**Country**]{.monash-blue2}
 
-- [**School**]{.monash-blue2}
+-   [**School**]{.monash-blue2}
 
-- [**Student information**]{.monash-blue2}: ID, gender, test scores, student weight
+-   [**Student information**]{.monash-blue2}: ID, gender, test scores, student weight
 
-- [**Economic factors**]{.monash-blue2}: Parent's education level, household belongings(i.e. computer, internet, etc.) as well as constructed index like `escs`. 
-
-
-
+-   [**Economic factors**]{.monash-blue2}: Parent's education level, household belongings(i.e. computer, internet, etc.) as well as constructed index like `escs`.
 
 ## Gender Gap Analysis {.transition-slide .center style="text-align: center;"}
 
+## 🔢Math
 
-## Math
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-
 ```{r}
 #| echo: false
 
@@ -202,7 +201,8 @@ math_score_plot <- math_score %>%
                                  "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
                                  "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
   labs(x = "",
-       y = "Average maths score") +
+       y = "Average maths score",
+       title = "Math Scores Comparison between 2018 and 2022") +
   theme_classic() +
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
@@ -212,8 +212,7 @@ ggplotly(math_score_plot) |>
   config(displayModeBar = FALSE)
 ```
 :::
-  
-  
+
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
@@ -244,10 +243,7 @@ diff_math_plot <- ggplot(math_diff_conf_intervals,
   geom_point() +
   geom_errorbar(aes(xmin = lower, xmax = upper), width=0) +
   geom_vline(xintercept = 0, color = "#969696") +
-  labs(y = "",
-  x = "",
-  title = "Math"
-  ) +
+  labs(title = "Gender Gap Difference in Math, 2022") +
   theme(legend.position="none") +
   annotate("text", x = 50, y = 1, label = "Girls") +
   annotate("text", x = -50, y = 1, label = "Boys") +
@@ -258,13 +254,17 @@ diff_math_plot <- ggplot(math_diff_conf_intervals,
 diff_math_plot
 ```
 :::
-  
-::::
+:::
 
-## Reading
+::: info  
+- **Singapore** consistently performs at the top of Math Scores, while countries like Argentina and Morocco show lower scores. 
 
-:::: {.columns}
+- Boys in most countries did better, while in Finland and Morocco, girls are better. 
+:::
 
+## 📖Reading
+
+::: columns
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
@@ -306,7 +306,8 @@ read_score_plot <- read_score %>%
                                  "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
                                  "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
   labs(x = "",
-       y = "Average reading score") +
+       y = "Average reading score",
+       title = "Reading Scores Comparison between 2018 and 2022") +
   theme_classic() +
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
@@ -315,7 +316,7 @@ ggplotly(read_score_plot) |>
   config(displayModeBar = FALSE)
 ```
 :::
-  
+
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
@@ -345,10 +346,7 @@ diff_read_plot <- ggplot(read_diff_conf_intervals,
   geom_point() +
   geom_errorbar(aes(xmin = lower, xmax = upper), width=0) +
   geom_vline(xintercept = 0, color = "#969696") +
-  labs(y = "",
-  x = "",
-  title = "Reading"
-  ) +
+  labs(title = "Gender Gap Difference in Reading, 2022") +
   theme(legend.position="none") +
   annotate("text", x = 50, y = 1, label = "Girls") +
   annotate("text", x = -50, y = 1, label = "Boys") +
@@ -358,12 +356,16 @@ diff_read_plot <- ggplot(read_diff_conf_intervals,
 diff_read_plot
 ```
 :::
-::::
+:::
 
+::: info 
+- **Singapore** consistently shows high reading scores, other countries like Argentina and Morocco also show some decline. 
+- **Girls generally outperform boys in reading across all countries.** 
+:::
 
-## Science
-:::: {.columns}
+## 🔬Science
 
+::: columns
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
@@ -405,7 +407,8 @@ sci_score_plot <- sci_score %>%
                                  "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
                                  "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
   labs(x = "",
-       y = "Average science score") +
+       y = "Average science score",
+       title = "Science Scores Comparison between 2018 and 2022") +
   theme_classic() +
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
@@ -414,7 +417,7 @@ ggplotly(sci_score_plot) |>
   config(displayModeBar = FALSE)
 ```
 :::
-  
+
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
@@ -444,10 +447,7 @@ diff_sci_plot <- ggplot(sci_diff_conf_intervals,
   geom_point() +
   geom_errorbar(aes(xmin = lower, xmax = upper), width=0) +
   geom_vline(xintercept = 0, color = "#969696") +
-  labs(y = "",
-  x = "",
-  title = "Science"
-  ) +
+  labs(title = "Gender Gap Difference in Science, 2022") +
   theme(legend.position="none") +
   annotate("text", x = 50, y = 1, label = "Girls") +
   annotate("text", x = -50, y = 1, label = "Boys") +
@@ -457,10 +457,15 @@ diff_sci_plot <- ggplot(sci_diff_conf_intervals,
 diff_sci_plot
 ```
 :::
-::::
+:::
 
+::: info 
+- **Singapore** and **Japan** lead in science scores in both 2018 and 2022. 
 
-## World Map
+- Finland and Saudi Arabia showing girls outperforming boys significantly. 
+:::
+
+## 🗺️World Map
 
 ```{r}
 #| echo: false
@@ -586,11 +591,10 @@ mrs_maps <- ggplot(math_read_sci_dat_wider,
 ggplotly(mrs_maps)
 ```
 
-
-
 ## EcoSocio Factors Analysis {.transition-slide .center style="text-align: center;"}
 
-## Parent's Education
+## 👪Parent's Education
+
 ```{r}
 #| echo: false
 mother_qual_math <- ggplot(mother_qual_math_read_sci_data,
@@ -614,7 +618,7 @@ mother_qual_math <- ggplot(mother_qual_math_read_sci_data,
       plot.title = element_text(size=11)) +
   labs(y = "Average Mathematics Score",
        x = "Mother's Qualification",
-       title = "math Scores and Mother's Qualification")
+       title = "Math Scores and Mother's Qualification")
 
 father_qual_math <- ggplot(father_qual_math_read_sci_data,
        aes(x=`Father's Education`,
@@ -637,19 +641,18 @@ father_qual_math <- ggplot(father_qual_math_read_sci_data,
       plot.title = element_text(size=11)) +
   labs(y = "Average Mathematics Score",
        x = "Father's Qualification",
-       title = "math Scores and Father's Qualification")
+       title = "Math Scores and Father's Qualification")
 ```
 
 ```{r}
 #| echo: false
-#| fig-width: 12
+#| fig-width: 18
 #| fig-height: 12
 
 father_qual_math + mother_qual_math
 ```
 
-
-## Impact of Technology Assistance
+## 🧑‍💻Impact of Technology Assistance
 
 ```{r}
 #| echo: false
@@ -688,10 +691,9 @@ internet_plot <- int_math_read_sci_data %>%
 computer_plot + internet_plot
 ```
 
-
 ## Temporal Analysis {.transition-slide .center style="text-align: center;"}
 
-## Gender Gaps Across Subjects and Years
+## 📈Gender Gaps Across Subjects and Years
 
 ```{r}
 #| fig-width: 18
@@ -737,11 +739,11 @@ stu_ggap_summ_long %>%
        y = "Gender Gap Values")
 ```
 
-## Highlighting Key Countries
+## 🔎Highlighting Key Countries
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ### All Subjects
+
 ```{r}
 #| fig-width: 12
 #| fig-height: 6
@@ -777,6 +779,7 @@ stu_ggap_summ_plotdf %>%
 ```
 
 ### Math
+
 ```{r}
 #| fig-width: 12
 #| fig-height: 5
@@ -803,21 +806,29 @@ stu_gap_math_plotdf %>%
 ```
 :::
 
+## 🛠️Limitations & Discussion
 
-## Limitations
+<br><br>
 
-::: {.callout-important}
-## Data Size
+::: callout-warning
+## Size limitation on CRAN packages
 
-Size of data would be bigger when more countries and student
+The data size would be bigger if keep uploading the newest data, so further curation process of data should be considered, or explore alternative data compression for the datasets.
 :::
 
+::: callout-important
+## Variables Consistency
 
-::: {.callout-important}
+The construction of questionnaire would be different every survey, as well as the coding mechanism of the original dataset, so curation process must be examined everytime to ensure the consistency of variables.
+:::
+
+::: callout-note
 ## Further Update
 
-- The Learningtower package dataset for 2022 is scheduled to be updated to the CRAN by next month.
-- A Rjournal paper according to the 2022 data would be published by Dianne Cook and Priya Dingorkar.
+-   The Learningtower package dataset for 2022 is scheduled to be updated to the CRAN by next month.
+-   A Rjournal paper according to the 2022 data would be published by Dianne Cook and Priya Dingorkar.
 :::
+
+<br><br>
 
 # Thank You
