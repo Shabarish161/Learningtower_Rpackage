@@ -25,6 +25,7 @@ library(ggplot2)
 library(here)
 library(patchwork)
 library(plotly)
+library(kableExtra)
 library(learningtower)
 ```
 
@@ -32,36 +33,100 @@ library(learningtower)
 source(here("setup.R"))
 ```
 
-## Contributors
+## Contributors 
+:::: {.columns}
 
--   Shabarish Sai Subramanian
+::: {.column width="20%"}
+<img src="../images/brickwork.png">
+Shabarish Sai Subramanian
+:::
 
--   Guan Ru Chen
+::: {.column width="20%"}
+<img src="../images/brickwork.png">
+Guan Ru, Chen
+:::
 
--   Dianne Cook
+::: {.column width="20%"}
+<img src="../images/brickwork.png">
+Dianne Cook
+:::
 
--   Kevin Y.X. Wang
+::: {.column width="20%"}
+<img src="../images/brickwork.png">
+Kevin Y.X. Wang
+:::
 
--   Priya Ravindra Dingorkar
+::: {.column width="20%"}
+<img src="../images/brickwork.png">
+Priya Ravindra Dingorkar
+:::
+
+::::
+
+
+
 
 ## Introduction
 
 The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities
 
-## Collection of Data
+## `Learningtower` Package {background-image="../images/logo.png" background-position="5% 15%" background-size="15%"}
 
-PISA data is collected every three years from over 70 countries, targeting 15-year-old students. The assessment measures students' abilities in reading, mathematics, and science through standardized tests. In addition to the tests, questionnaires are administered to students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more. This comprehensive approach helps provide insights into factors that affect student performance across different educational systems worldwide.
+<br><br><br><br>
+The `Learningtower` package provides access to PISA datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. 
+
+In `Learningtower` contain mainly 3 datasets:
+
+- [Student]{.monash-blue2} is a dataset of students scores in mathematics, reading and science.
+- [School]{.monash-blue2} is a dataset of school's detailed information, i.e. school weight, school funding distribution, private/public sectors, etc.
+- [Countrycode]{.monash-blue2} is a dataset of a mapping of a country/region’s ISO code to its full name.
+
+
+## What is Programme for International Student Assessment (PISA)? {.smaller}
+
+::: {.callout-tip title="Global Examination"}
+Measures student performance in reading, math, and science
+:::
+
+::: {.callout-tip title="Target Group"}
+Assesses 15-year-old students' knowledge and skills
+:::
+
+::: {.callout-tip title="Global Reach"}
+81 OECD member countries, 700,000+ students in **2022**
+:::
+
+:::{.callout-tip title="Educational Environment Research"}
+Additional questionnaires done by students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more.
+:::
 
 ## PISA Dataset
 
-```{r}
-#| code-fold: true
-#| echo: true
-student_data <- readRDS("../Data/student_2022.rds")
-print(colnames(student_data))
+```{r Dataset}
+#| echo: false
+
+student_full <- readRDS("../Data/student_2022.rds")
+kable(head(student_full)) |> 
+  kable_paper() |> 
+  scroll_box(width = "100%", height = "50%")
 ```
 
-The student dataset includes the following columns: year, country, school_id, student_id, mother_educ, father_educ, gender, computer, internet, math, read, science, stu_wgt, desk, room, dishwasher, television, computer_n, laptop_n, car, book, wealth, escs, and curiosity. These columns provide comprehensive details about the students' background, academic performance, and access to resources, offering a robust dataset for analysis of educational outcomes and socio-economic factors.
+
+## Variable Description
+From original dataset, We collect the following variables:
+
+- [**Year**]{.monash-blue2}
+
+- [**Country**]{.monash-blue2}
+
+- [**School**]{.monash-blue2}
+
+- [**Student information**]{.monash-blue2}: ID, gender, test scores, student weight
+
+- [**Economic factors**]{.monash-blue2}, such as: Parent's education level, household belongings(i.e. computer, internet, etc.) as well as constructed index like `escs`. 
+
+
+
 
 ## Gender Gap Analysis {.transition-slide .center style="text-align: center;"}
 
@@ -69,7 +134,60 @@ The student dataset includes the following columns: year, country, school_id, st
 ## Math
 
 ```{r}
-#| code-fold: true
+#| echo: false
+student_data_2018_2022 <- load_student(c(2018, 2022))
+data("countrycode")
+
+math_score <- student_data_2018_2022 %>% 
+  group_by(country, year) %>%  
+  dplyr::filter(country %in% c("AUS", "NZL", "JPN" , "SGP", 
+                               "SAU", "TUR", "USA", "FIN",
+                               "UKR", "BRA", "ARG", "MAR")) %>% 
+  dplyr::summarise(avg_math = mean(math, na.rm = TRUE)) %>%  
+  left_join(countrycode, by = "country") %>% 
+  dplyr::select(country_name, year, avg_math) %>% 
+  ungroup() %>% 
+  dplyr::mutate(
+    year = year %>% as.character %>% as.integer, 
+    label_x_pos = ifelse(year == 2018, 2018 - 2, 2022 + 1),
+    label = ifelse(
+      year == 2018,
+      paste0(country_name, ", ", round(avg_math)),
+      round(avg_math)))
+  
+math_score_plot <- math_score %>% 
+  ggplot(aes(x = year, 
+             y = avg_math,
+             label = label,
+             colour = country_name,
+             group = country_name)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept=2018,
+             linetype="dashed",
+             linewidth=0.1) +
+  geom_vline(xintercept=2022,
+             linetype="dashed",
+             linewidth=0.1) + 
+  geom_text(aes(x = label_x_pos),
+            position = position_nudge(y = 0)) +
+  scale_x_continuous(breaks = c(2018, 2022),
+                     limits = c(2014, 2024)) +
+  scale_colour_manual(values = c("#1F77B4FF", "#FF7F0EFF", "#2CA02CFF", "#D62728FF", 
+                                 "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
+                                 "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
+  labs(x = "",
+       y = "Average maths score") +
+  theme_classic() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+math_score_plot
+```
+
+```{r}
+#| echo: false
+#| 
 load(here("data/math_diff_conf_intervals.rda"))
 math_diff_conf_intervals <- math_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
@@ -86,7 +204,7 @@ math_diff_conf_intervals <- math_diff_conf_intervals %>%
                     "Argentina",
                     "Morocco")) 
   
-math_plot <- ggplot(math_diff_conf_intervals,
+diff_math_plot <- ggplot(math_diff_conf_intervals,
                     aes(diff, country_name,
                         col = score_class)) +
   scale_colour_manual("",
@@ -105,21 +223,65 @@ math_plot <- ggplot(math_diff_conf_intervals,
   annotate("text", x = -50, y = 1, label = "Boys") +
   scale_x_continuous(limits = c(-70, 70),
                      breaks = seq(-60, 60, 20),
-                     labels = abs(seq(-60, 60, 20)))
-math_plot
+                     labels = abs(seq(-60, 60, 20)))+
+  theme(legend.position="right")
+diff_math_plot
 ```
-
-## Explanation
-
-With the gender difference in average maths scores (measured as girls' scores - boys' scores) on the x-axis, this graphic displays the gender gap analysis in mathematics across several nations. The y-axis lists the countries, and the lines indicate confidence intervals, and each point displays the average score difference. Grey points indicate no discernible gender difference, red points emphasise nations where girls outperform boys, and blue points indicate nations where boys exceed girls. The graph illustrates the different degrees of gender inequality in maths ability, with boys outperforming girls in many nations and the opposite tendency in a small number.
-
 
 
 ## Reading
+```{r}
+#| echo: false
+read_score <- student_data_2018_2022 %>% 
+  group_by(country, year) %>%  
+  dplyr::filter(country %in% c("AUS", "NZL", "JPN" , "SGP", 
+                               "SAU", "TUR", "USA", "FIN",
+                               "UKR", "BRA", "ARG", "MAR")) %>% 
+  dplyr::summarise(avg_read = mean(read, na.rm = TRUE)) %>%  
+  left_join(countrycode, by = "country") %>% 
+  dplyr::select(country_name, year, avg_read) %>% 
+  ungroup() %>% 
+  dplyr::mutate(
+    year = year %>% as.character %>% as.integer, 
+    label_x_pos = ifelse(year == 2018, 2018 - 2, 2022 + 1),
+    label = ifelse(
+      year == 2018,
+      paste0(country_name, ", ", round(avg_read)),
+      round(avg_read)))
+  
+read_score_plot <- read_score %>% 
+  ggplot(aes(x = year, 
+             y = avg_read,
+             label = label,
+             colour = country_name,
+             group = country_name)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept=2018,
+             linetype="dashed",
+             linewidth=0.1) +
+  geom_vline(xintercept=2022,
+             linetype="dashed",
+             linewidth=0.1) + 
+  geom_text(aes(x = label_x_pos),
+            position = position_nudge(y = 0)) +
+  scale_x_continuous(breaks = c(2018, 2022),
+                     limits = c(2014, 2024)) +
+  scale_colour_manual(values = c("#1F77B4FF", "#FF7F0EFF", "#2CA02CFF", "#D62728FF", 
+                                 "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
+                                 "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
+  labs(x = "",
+       y = "Average reading score") +
+  theme_classic() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+read_score_plot
+```
 
 
 ```{r}
-#| code-fold: true
+#| echo: false
 load(here("data/read_diff_conf_intervals.rda"))
 read_diff_conf_intervals <- read_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
@@ -136,7 +298,7 @@ read_diff_conf_intervals <- read_diff_conf_intervals %>%
                     "Argentina",
                     "Morocco")) 
   
-read_plot <- ggplot(read_diff_conf_intervals,
+diff_read_plot <- ggplot(read_diff_conf_intervals,
                     aes(diff, country_name,
                         col = score_class)) +
   scale_colour_manual("",
@@ -156,19 +318,65 @@ read_plot <- ggplot(read_diff_conf_intervals,
   scale_x_continuous(limits = c(-70, 70),
                      breaks = seq(-60, 60, 20),
                      labels = abs(seq(-60, 60, 20)))
-read_plot
+diff_read_plot
 ```
 
-
-## Explanation
-
-An analysis of the gender gap in reading scores across several nations is shown in this graph. The gender gap in average reading scores is shown by the x-axis, which is computed as (Girls' scores - Boys' scores). The lines display the bootstrap confidence intervals, and the y-axis lists the nations. Each point on the y-axis reflects the average gender gap in reading performance. The red dots and lines illustrate that, in the majority of countries, girls perform significantly better than boys in reading, with scores veering towards positive values. The global pattern where girls tend to score higher on reading examinations is highlighted by the vertical zero line, which indicates no difference, and the fact that few countries display boys outperforming girls in reading.
 
 
 ## Science
 
 ```{r}
-#| code-fold: true
+#| echo: false
+sci_score <- student_data_2018_2022 %>% 
+  group_by(country, year) %>%  
+  dplyr::filter(country %in% c("AUS", "NZL", "JPN" , "SGP", 
+                               "SAU", "TUR", "USA", "FIN",
+                               "UKR", "BRA", "ARG", "MAR")) %>% 
+  dplyr::summarise(avg_sci = mean(science, na.rm = TRUE)) %>%  
+  left_join(countrycode, by = "country") %>% 
+  dplyr::select(country_name, year, avg_sci) %>% 
+  ungroup() %>% 
+  dplyr::mutate(
+    year = year %>% as.character %>% as.integer, 
+    label_x_pos = ifelse(year == 2018, 2018 - 2, 2022 + 1),
+    label = ifelse(
+      year == 2018,
+      paste0(country_name, ", ", round(avg_sci)),
+      round(avg_sci)))
+  
+sci_score_plot <- sci_score %>% 
+  ggplot(aes(x = year, 
+             y = avg_sci,
+             label = label,
+             colour = country_name,
+             group = country_name)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept=2018,
+             linetype="dashed",
+             linewidth=0.1) +
+  geom_vline(xintercept=2022,
+             linetype="dashed",
+             linewidth=0.1) + 
+  geom_text(aes(x = label_x_pos),
+            position = position_nudge(y = 0)) +
+  scale_x_continuous(breaks = c(2018, 2022),
+                     limits = c(2014, 2024)) +
+  scale_colour_manual(values = c("#1F77B4FF", "#FF7F0EFF", "#2CA02CFF", "#D62728FF", 
+                                 "#9467BDFF", "#8C564BFF", "#E377C2FF", "#7F7F7FFF",
+                                 "#17BECFFF", "#BCBD22FF", "#F7B6D2FF", "#AEC7E8FF")) +
+  labs(x = "",
+       y = "Average science score") +
+  theme_classic() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+sci_score_plot
+```
+
+
+```{r}
+#| echo: false
 load(here("data/sci_diff_conf_intervals.rda"))
 sci_diff_conf_intervals <- sci_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
@@ -209,21 +417,6 @@ sci_plot
 ```
 
 
-## Explanation
-
-This graph presents a Gender Gap Analysis in science scores across various countries, showing the difference between girls' and boys' average science scores. The x-axis represents the gender difference, calculated as( Girl's scores - Boy's Scores), while the y-axis lists the countries. The red points and lines indicate that girls outperform boys in science in several countries, while blue points and lines indicate that boys outperform girls. Grey points and lines represent countries where there is no significant gender difference. The vertical line at zero shows no difference, making it easy to see that in most countries, girls tend to perform better than boys in science, as shown by the positive values on the right side of the chart.
-
-
-## Overall Comparison
-
-```{r}
-#| echo: false
-#| code-fold: true
-#| out-width: 100%
-#| out-height: 100%
-
-math_plot + read_plot + sci_plot
-```
 
 ## World Map
 
@@ -345,19 +538,18 @@ mrs_maps <- ggplot(math_read_sci_dat_wider,
 
 ```{r}
 #| code-fold: true
-#| out-height: 100%
-#| 
+#| fig-width: 12
+#| fig-height: 10
+
 ggplotly(mrs_maps)
 ```
 
-## Explanation for Gender Gap by Countries
 
-The picture displays three global maps that illustrate the gender gap scores for three subjects—math, science, and reading—across various geographical locations. The gender gap value is shown by the colour gradient, where greater values are indicated by darker red and lower values by darker green. Each map shows the gender disparity in schooling in different regions, with notable differences between continents. For example, reading displays more red, indicating a wider gender disparity favouring one gender over the other, but maths exhibits green in many places of the world, indicating fewer gender gaps. Though there are some noticeable regional variations, the scientific map looks comparable to the maths map.
 
 ## EcoSocio Factors Analysis {.transition-slide .center style="text-align: center;"}
 
 
-## Temporal Analysis Analysis {.transition-slide .center style="text-align: center;"}
+## Temporal Analysis {.transition-slide .center style="text-align: center;"}
 
 ## Comparison
 ```{r}
