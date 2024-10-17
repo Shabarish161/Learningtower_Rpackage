@@ -27,10 +27,30 @@ library(patchwork)
 library(plotly)
 library(kableExtra)
 library(learningtower)
+library(ggbeeswarm)
+library(gganimate)
+library(gghighlight)
+library(ggrepel)
+library(viridis)
+library(brolgar)
 ```
 
 ```{r, include = FALSE}
 source(here("setup.R"))
+```
+
+```{r include=FALSE}
+student_2022_full <- readRDS("../Data/student_2022.rds")
+load("../data/countrycode.rda")
+load("../data/student.rda")
+load("../data/student_data_2018_2022.rda")
+load("../data/math_diff_conf_intervals.rda")
+load("../data/read_diff_conf_intervals.rda")
+load("../data/sci_diff_conf_intervals.rda")
+student_country <- left_join(student_2022_full,
+                             countrycode, by = "country")
+#calculating the weighted means for all three subjects and plotting them
+w_mean = function(x, w){weighted.mean(x = x, w = w, na.rm=TRUE)}
 ```
 
 ## Contributors 
@@ -70,7 +90,7 @@ Priya Ravindra Dingorkar
 
 The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities
 
-## `Learningtower` Package {background-image="../images/logo.png" background-position="5% 15%" background-size="15%"}
+## `Learningtower` Package {background-image="../images/logo.png" background-position="90% 5%" background-size="14%"}
 
 <br><br><br><br>
 The `Learningtower` package provides access to PISA datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. 
@@ -105,8 +125,7 @@ Additional questionnaires done by students, teachers, and school principals to g
 ```{r Dataset}
 #| echo: false
 
-student_full <- readRDS("../Data/student_2022.rds")
-kable(head(student_full)) |> 
+kable(head(student_2022_full)) |> 
   kable_paper() |> 
   scroll_box(width = "100%", height = "50%")
 ```
@@ -123,7 +142,7 @@ From original dataset, We collect the following variables:
 
 - [**Student information**]{.monash-blue2}: ID, gender, test scores, student weight
 
-- [**Economic factors**]{.monash-blue2}, such as: Parent's education level, household belongings(i.e. computer, internet, etc.) as well as constructed index like `escs`. 
+- [**Economic factors**]{.monash-blue2}: Parent's education level, household belongings(i.e. computer, internet, etc.) as well as constructed index like `escs`. 
 
 
 
@@ -132,11 +151,12 @@ From original dataset, We collect the following variables:
 
 
 ## Math
+:::: {.columns}
+
+::: {.column width="50%"}
 
 ```{r}
 #| echo: false
-student_data_2018_2022 <- load_student(c(2018, 2022))
-data("countrycode")
 
 math_score <- student_data_2018_2022 %>% 
   group_by(country, year) %>%  
@@ -159,8 +179,7 @@ math_score_plot <- math_score %>%
   ggplot(aes(x = year, 
              y = avg_math,
              label = label,
-             colour = country_name,
-             group = country_name)) +
+             colour = country_name)) +
   geom_point() +
   geom_line() +
   geom_vline(xintercept=2018,
@@ -182,13 +201,18 @@ math_score_plot <- math_score %>%
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
         legend.position = "none")
-math_score_plot
-```
 
+ggplotly(math_score_plot) |> 
+  config(displayModeBar = FALSE)
+```
+:::
+  
+  
+::: {.column width="50%"}
 ```{r}
 #| echo: false
 #| 
-load(here("data/math_diff_conf_intervals.rda"))
+
 math_diff_conf_intervals <- math_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
                   c("Australia",
@@ -227,9 +251,15 @@ diff_math_plot <- ggplot(math_diff_conf_intervals,
   theme(legend.position="right")
 diff_math_plot
 ```
-
+:::
+  
+::::
 
 ## Reading
+
+:::: {.columns}
+
+::: {.column width="50%"}
 ```{r}
 #| echo: false
 read_score <- student_data_2018_2022 %>% 
@@ -253,8 +283,7 @@ read_score_plot <- read_score %>%
   ggplot(aes(x = year, 
              y = avg_read,
              label = label,
-             colour = country_name,
-             group = country_name)) +
+             colour = country_name)) +
   geom_point() +
   geom_line() +
   geom_vline(xintercept=2018,
@@ -276,13 +305,15 @@ read_score_plot <- read_score %>%
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
         legend.position = "none")
-read_score_plot
+ggplotly(read_score_plot) |> 
+  config(displayModeBar = FALSE)
 ```
-
-
+:::
+  
+::: {.column width="50%"}
 ```{r}
 #| echo: false
-load(here("data/read_diff_conf_intervals.rda"))
+
 read_diff_conf_intervals <- read_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
                   c("Australia",
@@ -320,11 +351,14 @@ diff_read_plot <- ggplot(read_diff_conf_intervals,
                      labels = abs(seq(-60, 60, 20)))
 diff_read_plot
 ```
-
+:::
+::::
 
 
 ## Science
+:::: {.columns}
 
+::: {.column width="50%"}
 ```{r}
 #| echo: false
 sci_score <- student_data_2018_2022 %>% 
@@ -348,8 +382,7 @@ sci_score_plot <- sci_score %>%
   ggplot(aes(x = year, 
              y = avg_sci,
              label = label,
-             colour = country_name,
-             group = country_name)) +
+             colour = country_name)) +
   geom_point() +
   geom_line() +
   geom_vline(xintercept=2018,
@@ -371,13 +404,15 @@ sci_score_plot <- sci_score %>%
   theme(axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
         legend.position = "none")
-sci_score_plot
+ggplotly(sci_score_plot) |> 
+  config(displayModeBar = FALSE)
 ```
-
-
+:::
+  
+::: {.column width="50%"}
 ```{r}
 #| echo: false
-load(here("data/sci_diff_conf_intervals.rda"))
+
 sci_diff_conf_intervals <- sci_diff_conf_intervals %>%
   dplyr::filter(country_name %in%
                   c("Australia",
@@ -393,7 +428,7 @@ sci_diff_conf_intervals <- sci_diff_conf_intervals %>%
                     "Argentina",
                     "Morocco")) 
   
-sci_plot <- ggplot(sci_diff_conf_intervals,
+diff_sci_plot <- ggplot(sci_diff_conf_intervals,
                     aes(diff, country_name,
                         col = score_class)) +
   scale_colour_manual("",
@@ -413,9 +448,10 @@ sci_plot <- ggplot(sci_diff_conf_intervals,
   scale_x_continuous(limits = c(-70, 70),
                      breaks = seq(-60, 60, 20),
                      labels = abs(seq(-60, 60, 20)))
-sci_plot
+diff_sci_plot
 ```
-
+:::
+::::
 
 
 ## World Map
@@ -537,9 +573,9 @@ mrs_maps <- ggplot(math_read_sci_dat_wider,
 ```
 
 ```{r}
-#| code-fold: true
 #| fig-width: 12
-#| fig-height: 10
+#| fig-height: 8
+#| echo: false
 
 ggplotly(mrs_maps)
 ```
@@ -549,173 +585,128 @@ ggplotly(mrs_maps)
 ## EcoSocio Factors Analysis {.transition-slide .center style="text-align: center;"}
 
 
+
 ## Temporal Analysis {.transition-slide .center style="text-align: center;"}
 
-## Comparison
-```{r}
-#| echo: false
-#| 
-student_all <- load(here("data/student.rda"))
-data("countrycode")
-student_country <- left_join(student,
-                             countrycode,
-                             by = "country") %>%
-  dplyr::filter(country_name %in%
-                  c("Australia",
-                    "New Zealand",
-                    "Japan",
-                    "Singapore",
-                    "Saudi Arabia",
-                    "Turkey",
-                    "United States",
-                    "Finland",
-                    "Ukraine",
-                    "Brazil",
-                    "Argentina",
-                    "Morocco")) %>%
-  dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
-  na.omit() %>%
-  pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
-
-# Compute the bootstrap confidence intervals, and cache result
-if (!file.exists("data/all_bs_cf.rda")) {
-  all_bootstrap <- map_dfr(1:100, ~{
-    student_country %>%
-    group_by(country_name, #year,
-             subject) %>%
-    #sample_n(size = n(), replace = TRUE) %>%
-    mutate(year = sample(year, replace=FALSE)) %>%
-    group_by(country_name, year,
-             subject) %>%
-    dplyr::summarise(
-      avg = weighted.mean(score, w = stu_wgt, na.rm = TRUE), .groups = "drop") %>%
-    #ungroup() %>%
-    mutate(boot_id = .x)
-  })
-
-  all_bootstrap_ci <- all_bootstrap %>%
-    group_by(country_name, year,
-             subject) %>%
-    summarise(
-      lower = min(avg), # sort(avg)[5],
-      upper = max(avg), #sort(avg)[95],
-      .groups = "drop")
-
-  # compute original estimate of average and join
-  all_avg <- student_country %>%
-    group_by(country_name, year, subject) %>%
-    summarise(
-      avg = weighted.mean(score,
-                          w = stu_wgt, na.rm = TRUE),
-      .groups = "drop")
-
-  all_bs_cf <- left_join(all_avg,
-                      all_bootstrap_ci,
-                      by = c("country_name",
-                             "year",
-                             "subject"))
-
-  save(all_bs_cf, file= here("data/all_bs_cf.rda"))
-
-} else {
-  load(here("data/all_bs_cf.rda"))
-}
-
-```
+## Gender Gaps Across Subjects and Years
 
 ```{r}
+#| fig-width: 14
+#| fig-height: 12
 #| echo: false
-#| 
-load(here("data/all_bs_cf.rda"))
-all_bs_cf <- all_bs_cf %>%
-  mutate(year = as.numeric(as.character(year)),
-         country_name = factor(country_name),
-         Country = country_name)
-                 # levels = c("Australia",
-                 #    "New Zealand",
-                 #    "Japan",
-                 #    "Singapore",
-                 #    "Saudi Arabia",
-                 #    "Turkey",
-                 #    "United States",
-                 #    "Finland",
-                 #    "Ukraine",
-                 #    "Brazil",
-                 #    "Argentina",
-                 #    "Morocco"))
+stu_gender_summ  <-  student %>% 
+  filter(complete.cases(gender)) %>% 
+  group_by(year, country, gender) %>%
+  summarise_at(.vars = vars(math, read, science), 
+               .funs = list(wmean = ~w_mean(., w = stu_wgt))) %>% 
+  mutate(year = year %>% as.character() %>% as.integer) %>% 
+  group_by(country) %>%
+  filter(n() >= 10) %>% 
+  ungroup() %>% 
+  pivot_longer(cols = contains("_wmean"),
+               names_to = "names",
+               values_to = "values") %>% 
+  pivot_wider(names_from = c("gender", "names"),
+              values_from = "values")
+
+stu_ggap_summ  <-  stu_gender_summ %>% 
+  dplyr::transmute(
+    year, country,
+    gap_math_wmean = female_math_wmean - male_math_wmean,
+    gap_read_wmean = female_read_wmean - male_read_wmean,
+    gap_science_wmean = female_science_wmean - male_science_wmean)
 
 
-country_names_highlight <- c("Australia",
-                            "New Zealand",
-                            "Japan",
-                            "Singapore",
-                            "Saudi Arabia",
-                            "Turkey",
-                            "United States",
-                            "Finland",
-                            "Ukraine",
-                            "Brazil",
-                            "Argentina",
-                            "Morocco")
+stu_ggap_summ_long  <-  stu_ggap_summ %>% 
+  pivot_longer(cols = contains("gap"),
+               names_to = "gap_names",
+               values_to = "gap_values")
+
+stu_ggap_summ_long %>%
+  ggplot(aes(x = year, y = gap_values)) +
+  geom_point() +
+  geom_line(aes(group = country)) +
+  geom_hline(yintercept = 0, colour = "red") +
+  facet_wrap(~gap_names) +
+  labs(title = "Average gender gaps across subjects and years", 
+       subtitle = "Gap = avg. female score - avg. male score", 
+       x = "Year", 
+       y = "Gender Gap Values")
 ```
 
+## Highlighting Key Countries
+
+::: {.panel-tabset}
+
+### All Subjects
 ```{r}
+#| fig-width: 12
+#| fig-height: 6
 #| echo: false
-#| 
-math_all_bs_cf_plot <- all_bs_cf %>% 
-  dplyr::filter(subject == "math") %>% 
-  ggplot(aes(x = year, 
-             y = avg,
-             colour = Country)) +
-  geom_point(alpha = 0.45) +
-  geom_line(aes(group = Country))
+stu_ggap_summ_nest  <-  stu_ggap_summ %>%
+  pivot_longer(contains("_wmean"),
+               names_to = "names",
+               values_to = "values") %>% 
+  group_by(names) %>% 
+  nest() %>% 
+  mutate(f_tbl = map(.x = data, 
+                     .f = ~ .x %>% 
+                       as_tsibble(key = country, index = year) %>% 
+                       features(values, feat_brolgar) %>% 
+                       keys_near(key = country, var = range2)),
+         f_data = map2(.x = data, .y = f_tbl, 
+                       .f = ~ left_join(.x, .y, by = "country")))
+
+stu_ggap_summ_plotdf  <-  stu_ggap_summ_nest %>% 
+  select(names, f_data) %>% 
+  unnest(f_data) %>% 
+  left_join(countrycode, by = "country") %>% 
+  mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
+
+stu_ggap_summ_plotdf %>% 
+  ggplot(aes(x = year, y = values)) +
+  geom_line(aes(group = country, colour = country)) +
+  gghighlight(!is.na(stat), label_key = label_stats_country, calculate_per_facet = TRUE, keep_scales = TRUE) +
+  facet_wrap(~names) + 
+  labs(x = "Year",
+       y = "Values", 
+       title = "Highlighting key countries across all three subjects")
 ```
 
+### Math
 ```{r}
+#| fig-width: 12
+#| fig-height: 6
 #| echo: false
-read_all_bs_cf_plot <- all_bs_cf %>% 
-  dplyr::filter(subject == "read") %>% 
-  ggplot(aes(x = year, 
-             y = avg,
-             colour = Country)) +
-  geom_point(alpha = 0.45) +
-  geom_line(aes(group = Country)) 
+stu_gap_math_near  <-  stu_ggap_summ %>%
+  as_tsibble(key = country, index = year) %>% 
+  features(gap_math_wmean, feat_brolgar) %>%
+  keys_near(key = country, var = median)
+
+stu_gap_math_plotdf  <-  stu_ggap_summ %>%
+  as_tibble() %>%
+  left_join(stu_gap_math_near, by = "country") %>%
+  left_join(countrycode, by = "country") %>%
+  mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
+
+stu_gap_math_plotdf %>%
+  ggplot(aes(x = year, y = gap_math_wmean,
+             group = country, colour = stat)) +
+  geom_line() +
+  gghighlight::gghighlight(!is.na(stat), label_key = label_stats_country) + 
+  labs(x = "Year", 
+       y = "Values", 
+       title = "Highlighting key countries for maths")
 ```
+:::
 
-```{r}
-#| echo: false
-sci_all_bs_cf_plot <- all_bs_cf %>% 
-  dplyr::filter(subject == "science") %>% 
-  ggplot(aes(x = year,
-             y = avg,
-             colour = Country)) +
-  geom_point(alpha = 0.45) +
-  geom_line(aes(group = Country))
-```
-
-```{r}
-#| echo: false
-subplot(
-    ggplotly(math_all_bs_cf_plot),
-    ggplotly(read_all_bs_cf_plot),
-    ggplotly(sci_all_bs_cf_plot),
-    nrows = 1) |> 
-  plotly::layout(showlegend = FALSE,
-  title = "Temporal Patterns in math, reading and science scroes across countries") 
-```
-
-## Explanation for Temporal Analysis
-
-From 2000 to 2022, the three charts show the temporal trends of math, reading, and science student performance scores in various nations. Labels are used to draw attention to certain countries' performance trends, and each line shows the average score for that nation.
-
--   Mathematics: Singapore routinely ranks top, whereas Brazil and Peru have lower scores with some positive trends. Around the 500 score point, nations like Belgium, Australia, and Germany continue to perform comparatively steadily.
-
--   Reading: Australia, Belgium, and Canada continue to do well, while Singapore once again takes the lead. Thailand, Brazil, and Peru perform worse, though they gradually become better.
-
--   Science: Australia, Germany, and Belgium retain mid-range ratings, while Singapore and Canada perform at the top. Despite having lower scores, Brazil and Peru have shown some development.
 
 ## Limitations
 
-Although the Learningtower package makes it easier to access the PISA dataset, it has drawbacks, including less customisation options for more complex analyses, performance problems with huge datasets, and possible incompatibilities with other R versions. Furthermore, for more complicated use scenarios, the documentation might not be adequate. Inherent limitations of the PISA dataset include the fact that it is cross-sectional, which precludes longitudinal tracking, the possibility of sample biases, and the difficulties caused by linguistic and cultural differences that could compromise the comparability of results. Furthermore, the depth of analysis may be constrained by incomplete or missing data, a lack of socioeconomic indicators, and out-of-date background questionnaires. Lastly, the emphasis on standardised test scores may obscure more important educational objectives that the tests do not measure, such creativity and critical thinking.
+::: {.callout-important}
+## Data Size
+
+Size of data would be bigger when more countries and student
+:::
 
 # Thank You
