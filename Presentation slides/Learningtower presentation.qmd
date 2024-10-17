@@ -28,7 +28,6 @@ library(plotly)
 library(kableExtra)
 library(learningtower)
 library(ggbeeswarm)
-library(gganimate)
 library(gghighlight)
 library(ggrepel)
 library(viridis)
@@ -47,8 +46,14 @@ load("../data/student_data_2018_2022.rda")
 load("../data/math_diff_conf_intervals.rda")
 load("../data/read_diff_conf_intervals.rda")
 load("../data/sci_diff_conf_intervals.rda")
+load("../data/father_qual_math_read_sci_data.rda")
+load("../data/mother_qual_math_read_sci_data.rda")
+load("../data/int_math_read_sci_data.rda")
+load("../data/comp_math_read_sci_data.rda")
+
 student_country <- left_join(student_2022_full,
                              countrycode, by = "country")
+
 #calculating the weighted means for all three subjects and plotting them
 w_mean = function(x, w){weighted.mean(x = x, w = w, na.rm=TRUE)}
 ```
@@ -86,9 +91,8 @@ Priya Ravindra Dingorkar
 
 
 
-## Introduction
+## Introduction {.transition-slide .center style="text-align: center;"}
 
-The learningtower R package is designed to streamline the analysis of OECD's Programme for International Student Assessment (PISA) data. This package provides access to datasets from 2000 to 2022, allowing researchers to explore trends in education, student performance, and other contextual factors. It simplifies the process of handling large, complex datasets, making it easier to conduct comparative studies across countries and years. Currently, we are updating the 2022 version of the learningtower package to ensure compatibility with the latest PISA data and functionalities
 
 ## `Learningtower` Package {background-image="../images/logo.png" background-position="90% 5%" background-size="14%"}
 
@@ -102,7 +106,7 @@ In `Learningtower` contain mainly 3 datasets:
 - [Countrycode]{.monash-blue2} is a dataset of a mapping of a country/region’s ISO code to its full name.
 
 
-## What is Programme for International Student Assessment (PISA)? {.smaller}
+## What is PISA (Programme for International Student Assessment)? 
 
 ::: {.callout-tip title="Global Examination"}
 Measures student performance in reading, math, and science
@@ -119,6 +123,8 @@ Assesses 15-year-old students' knowledge and skills
 :::{.callout-tip title="Educational Environment Research"}
 Additional questionnaires done by students, teachers, and school principals to gather contextual data on educational environments, socio-economic status, and more.
 :::
+
+## Methodology
 
 ## PISA Dataset
 
@@ -584,6 +590,103 @@ ggplotly(mrs_maps)
 
 ## EcoSocio Factors Analysis {.transition-slide .center style="text-align: center;"}
 
+## Parent's Education
+```{r}
+#| echo: false
+mother_qual_math <- ggplot(mother_qual_math_read_sci_data,
+       aes(x=`Mother's Education`,
+           y=math_avg,
+           col=`Mother's Education`)) +
+  geom_quasirandom(size = 1.7,
+             cex = 3) +
+  geom_line(aes(group = country_name),
+            size=0.5, alpha=.36) +
+  scale_fill_viridis(discrete = TRUE,
+                     option = "A",
+                      alpha=0.2) +
+  stat_summary(fun.y = median,
+               fun.ymin = median,
+               fun.ymax = median,
+               geom = "crossbar",
+               width = 0.5,
+               col = "black") +
+  theme(legend.position="none",
+      plot.title = element_text(size=11)) +
+  labs(y = "Average Mathematics Score",
+       x = "Mother's Qualification",
+       title = "math Scores and Mother's Qualification")
+
+father_qual_math <- ggplot(father_qual_math_read_sci_data,
+       aes(x=`Father's Education`,
+           y=math_avg,
+           col=`Father's Education`)) +
+  geom_quasirandom(size = 1.7,
+             cex = 3) +
+  geom_line(aes(group = country_name),
+            size=0.5, alpha=.36) +
+  scale_fill_viridis(discrete = TRUE,
+                     option = "A",
+                      alpha=0.2) +
+  stat_summary(fun.y = median,
+               fun.ymin = median,
+               fun.ymax = median,
+               geom = "crossbar",
+               width = 0.5,
+               col = "black") +
+  theme(legend.position="none",
+      plot.title = element_text(size=11)) +
+  labs(y = "Average Mathematics Score",
+       x = "Father's Qualification",
+       title = "math Scores and Father's Qualification")
+```
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 12
+
+father_qual_math + mother_qual_math
+```
+
+
+## Impact of Technology Assistance
+
+```{r}
+#| echo: false
+computer_plot <- comp_math_read_sci_data %>%
+  ggplot(aes(x=computer,
+             y= math_avg,
+             group = country_name)) +
+  geom_point(color = "black",
+               size=0.36) +
+  geom_line(size = .27,
+              alpha = .45) +
+  theme(legend.position = "none") +
+  labs(x = "Possession of Computer",
+         y = "Average Mathematics Score",
+         title = "Impact of Computers on Average Math Scores")
+
+
+internet_plot <- int_math_read_sci_data %>%
+  ggplot(aes(x=internet,
+             y= math_avg,
+             group = country_name )) +
+  geom_point(color = "black",
+               size=0.36) +
+  geom_line(size = .27,
+              alpha = .45) +
+  theme(legend.position = "none") +
+  labs(x = "Access to Internet",
+         y = "Average Mathematics Score",
+         title = "Impact of Internet on Average Math Scores")
+```
+
+```{r}
+#| fig-width: 18
+#| fig-height: 12
+#| echo: false
+computer_plot + internet_plot
+```
 
 
 ## Temporal Analysis {.transition-slide .center style="text-align: center;"}
@@ -591,7 +694,7 @@ ggplotly(mrs_maps)
 ## Gender Gaps Across Subjects and Years
 
 ```{r}
-#| fig-width: 14
+#| fig-width: 18
 #| fig-height: 12
 #| echo: false
 stu_gender_summ  <-  student %>% 
@@ -676,7 +779,7 @@ stu_ggap_summ_plotdf %>%
 ### Math
 ```{r}
 #| fig-width: 12
-#| fig-height: 6
+#| fig-height: 5
 #| echo: false
 stu_gap_math_near  <-  stu_ggap_summ %>%
   as_tsibble(key = country, index = year) %>% 
@@ -707,6 +810,14 @@ stu_gap_math_plotdf %>%
 ## Data Size
 
 Size of data would be bigger when more countries and student
+:::
+
+
+::: {.callout-important}
+## Further Update
+
+- The Learningtower package dataset for 2022 is scheduled to be updated to the CRAN by next month.
+- A Rjournal paper according to the 2022 data would be published by Dianne Cook and Priya Dingorkar.
 :::
 
 # Thank You
