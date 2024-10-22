@@ -599,8 +599,7 @@ ggplotly(mrs_maps)
 #| echo: false
 mother_qual_math <- ggplot(mother_qual_math_read_sci_data,
        aes(x=`Mother's Education`,
-           y=math_avg,
-           col=`Mother's Education`)) +
+           y=math_avg)) +
   geom_quasirandom(size = 1.7,
              cex = 3) +
   geom_line(aes(group = country_name),
@@ -622,15 +621,11 @@ mother_qual_math <- ggplot(mother_qual_math_read_sci_data,
 
 father_qual_math <- ggplot(father_qual_math_read_sci_data,
        aes(x=`Father's Education`,
-           y=math_avg,
-           col=`Father's Education`)) +
+           y=math_avg)) +
   geom_quasirandom(size = 1.7,
              cex = 3) +
   geom_line(aes(group = country_name),
             size=0.5, alpha=.36) +
-  scale_fill_viridis(discrete = TRUE,
-                     option = "A",
-                      alpha=0.2) +
   stat_summary(fun.y = median,
                fun.ymin = median,
                fun.ymax = median,
@@ -667,8 +662,8 @@ computer_plot <- comp_math_read_sci_data %>%
              group = country_name)) +
   geom_point(color = "black",
                size=0.36) +
-  geom_line(size = .27,
-              alpha = .45) +
+  # geom_line(size = .27,
+  #             alpha = .45) +
   theme(legend.position = "none") +
   labs(x = "Possession of Computer",
          y = "Average Mathematics Score",
@@ -681,8 +676,8 @@ internet_plot <- int_math_read_sci_data %>%
              group = country_name )) +
   geom_point(color = "black",
                size=0.36) +
-  geom_line(size = .27,
-              alpha = .45) +
+  # geom_line(size = .27,
+  #             alpha = .45) +
   theme(legend.position = "none") +
   labs(x = "Access to Internet",
          y = "Average Mathematics Score",
