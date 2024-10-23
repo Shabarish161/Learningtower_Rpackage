@@ -84,6 +84,9 @@ By using Slack for dynamic conversations and Notion for structured documentation
 
 # Overview of the data
 
+The dataset, which was gathered in 2022 as a component of the Programme for International Student Assessment (PISA), offers student-level information from a number of nations and captures variables that affect academic performance. It contains student and school-specific identifiers, reading, science, and math test results, as well as comprehensive data on household resources including computers, the internet, books, and other belongings. Along with socioeconomic variables including the Economic, Social, and Cultural Status (ESCS) index and wealth measures, it also documents the educational attainment of both parents using the International Standard Classification of Education (ISCED). To guarantee representativeness, the dataset additionally incorporates survey weights and takes gender into consideration. Cross-national comparisons and gender-based research are made easier by this wealth of data, which enables a thorough examination of the effects of parental education, socioeconomic background, and resource availability on student performance.
+
+
 # Analysis
 
 ### Gender Gap
