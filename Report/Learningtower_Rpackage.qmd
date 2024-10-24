@@ -84,7 +84,39 @@ By using Slack for dynamic conversations and Notion for structured documentation
 
 # Overview of the data
 
-The dataset, which was gathered in 2022 as a component of the Programme for International Student Assessment (PISA), offers student-level information from a number of nations and captures variables that affect academic performance. It contains student and school-specific identifiers, reading, science, and math test results, as well as comprehensive data on household resources including computers, the internet, books, and other belongings. Along with socioeconomic variables including the Economic, Social, and Cultural Status (ESCS) index and wealth measures, it also documents the educational attainment of both parents using the International Standard Classification of Education (ISCED). To guarantee representativeness, the dataset additionally incorporates survey weights and takes gender into consideration. Cross-national comparisons and gender-based research are made easier by this wealth of data, which enables a thorough examination of the effects of parental education, socioeconomic background, and resource availability on student performance.
+The dataset, which was gathered in 2022 as a component of the Programme for International Student Assessment (PISA), offers student-level information from a number of nations and captures variables that affect academic performance. it contains the following variables
+
+Year: This column represents the year of data collection, which is 2022 in this case.
+
+Country: This column specifies the country from which the student data has been collected, using country codes.
+
+School_ID: Represents the unique identifier for each school participating in the PISA assessment.
+
+Student_ID: This column provides a unique identifier for each student in the dataset.
+
+Mother_Educ: This column indicates the mother’s highest level of education based on the International Standard Classification of Education (ISCED) levels, ranging from "less than ISCED1" to "ISCED 3B, C".
+
+Father_Educ: Indicates the father's highest level of education based on ISCED levels, similar to the mother's education.
+
+Gender: This column categorizes the gender of each student as "male" or "female".
+
+Computer: Represents whether the student has access to a computer at home ("yes" or "no").
+
+Internet: This column indicates whether the student has internet access at home ("yes" or "no").
+
+Math, Read, Science: These columns provide the scores in mathematics, reading, and science subjects, respectively.
+
+Stu_Wgt: Represents the student weight, used for calculating weighted averages in the analysis to ensure representative data.
+
+Desk, Room, Dishwasher, Television, Car: These columns indicate whether the student has specific household resources (e.g., desk, separate room, dishwasher, television, and car).
+
+Computer_n, Laptop_n: Represents the number of computers and laptops available at home.
+
+Book: Indicates the number of books in the student's home, categorized into ranges (e.g., "0-10", "11-25", "101-200").
+
+Wealth: This column provides a measure of the student's economic wealth, where higher values indicate greater wealth.
+
+ESCS: Represents the Economic, Social, and Cultural Status index, which is a composite measure of a student's socio-economic background.
 
 
 # Analysis
