@@ -129,6 +129,13 @@ The dataset includes school weight as well as other information such as school f
 data("school")
 head(school)
 ```
+## School Dataset
+The school dataset covers a variety of educational topics and offers data about schools across multiple nations.
+
+**year**: Year represents the year during which the data was collected.
+
+**country**: Country refers to the countries from which the data was collected.
+
 1. **school_id**: A unique identifier for each school, allowing for consistent tracking of school-related data across different records and years.
 
 2. **public_private**: Designates the type of school administration, distinguishing between public (government-funded) and private (independently funded) institutions.
