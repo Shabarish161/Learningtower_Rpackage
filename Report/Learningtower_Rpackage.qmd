@@ -129,11 +129,23 @@ The dataset includes school weight as well as other information such as school f
 data("school")
 head(school)
 ```
-**Year***: represents the year of data collection, which is manually constructed by the contributor.
+1. **school_id**: A unique identifier for each school, allowing for consistent tracking of school-related data across different records and years.
 
-**Country**: specifies the country from which the student data has been collected, using country codes.
+2. **public_private**: Designates the type of school administration, distinguishing between public (government-funded) and private (independently funded) institutions.
 
-**School's information**: This group provides some information about each school in the dataset.
+3. **stratio**: Represents the student-teacher ratio, indicating the average number of students per teacher in the school. Lower ratios typically suggest smaller class sizes and potentially more individualized attention.
+
+4. **staff_shortage**: A measure indicating the level of staffing challenges faced by the school. Positive values may suggest severe shortages, while negative values or zeros may indicate minimal issues.
+
+5. **school_size**: The total number of students enrolled, which can reflect the school's capacity and influence on the learning environment. Larger schools may offer more diverse programs, while smaller ones might provide a more personalized setting.
+
+6. **fund_gov**: the percentage of funding that the government provides to the school. Understanding the resources available for staffing, programs, and infrastructure can be greatly aided by this.
+
+7. **fund_fees**: The proportion of money that came from student fees demonstrates the school's reliance on fee-based revenue, which is more usual in private institutions.
+
+8. **fund_donation**: represents the proportion of funds raised through donations, which could be a sign of extra support systems or community involvement.
+
+9. **sch_wgt**: In order to guarantee that the sample appropriately reflects the school population, school weight is utilised in statistical analysis, especially in weighted averages or survey data.
 
 ## Countrycode Dataset
 
@@ -909,6 +921,10 @@ stu_ggap_summ_plotdf %>%
 - Variables Consistency: The construction of questionnaire would be different every survey, as well as the coding mechanism of the original dataset, so curation process must be examined everytime to ensure the consistency of variables.
 
 # Conclusion
+
+An important improvement is the addition of the 2022 PISA data to the learningtower R package, which provides current insights from student and school statistics. By providing a thorough grasp of student performance, school characteristics, and the factors impacting learning outcomes, this update facilitates a deeper comprehension of global educational dynamics. The program facilitates cross-country comparisons and rigorous longitudinal analysis by guaranteeing consistency across datasets from 2000 to 2022.
+
+The learningtower package's improvements give educators, researchers, and policymakers useful tools for evaluating and enhancing educational institutions. The package promotes data-driven initiatives to address educational issues and advance fairness by providing a comprehensive strategy that integrates student and school data. Learningtower will remain a vital tool for expanding our knowledge of global educational trends and promoting significant learning gains as long as it is updated to include upcoming PISA statistics.
 
 # Reference
  
