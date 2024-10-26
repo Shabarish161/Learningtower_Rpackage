@@ -9,7 +9,7 @@ author:
   email: gche0054@student.monash.edu
 phone: (03) 9905 2478
 email: BusEco-Econometrics@monash.edu
-organization: Department of Econometrics & Business Statistics, Monash University
+organization: ETC5543 Business analytics creative activity, 2024
 bibliography: references.bib
 format: report-pdf
 ---
@@ -226,7 +226,7 @@ sci_plot <- ggplot(sci_diff_conf_intervals,
   x = "",
   title = "Science"
   ) +
-  theme(legend.position="none") +
+  theme(legend.position="right") +
   annotate("text", x = 50, y = 1, label = "Girls") +
   annotate("text", x = -50, y = 1, label = "Boys") +
   scale_x_continuous(limits = c(-70, 70),
@@ -371,6 +371,8 @@ mrs_maps <- ggplot(math_read_sci_dat_wider,
 ```{r}
 #| label: fig-worldmaps
 #| fig-cap: "Maps showing the gender gap in math, reading, and science results between girls and boys across the world. A positive score for a country indicates that girls outperformed boys in that country, whereas a negative score for a country difference indicates that boys outperformed girls in that country. The diverging colour scale makes it possible to interpret the range of scores and the also helps us intrepret the gender gap difference among these students across the globe."
+#| fig-width: 15
+#| fig-height: 12
 #| fig-pos: "H"
 #| out-width: "100%"
 
