@@ -126,17 +126,13 @@ The dataset offers student-level information from a number of nations and captur
 
 ## School Dataset
 
-The dataset includes school weight as well as other information such as school funding distribution, whether the school is private or public, enrollment of boys and girls, school size, and similar other characteristics of interest of different schools these 15-year-olds attend around the world.
-```{r}
-data("school")
-head(school)
-```
-## School Dataset
 The school dataset covers a variety of educational topics and offers data about schools across multiple nations.
 
 **year**: Year represents the year during which the data was collected.
 
 **country**: Country refers to the countries from which the data was collected.
+
+**School's information**:
 
 1. **school_id**: A unique identifier for each school, allowing for consistent tracking of school-related data across different records and years.
 
@@ -384,39 +380,18 @@ In the @fig-worldmaps, we have shown the gender gap difference between girls and
 
 Even though the map visualization embeds the same scores as @fig-worldmaps, one of the most striking thing on this map is the lack of data for the Africa continent. We see that there is less of a gender disparity seen in the science scores compared to maths and reading. In addition, the color scale for scores of each subject aids in identifying the countries that took part in the PISA experiment. As a result, in this section, we have seen the gender gap scores and striking trends between 15-year-old girls and boys in math, reading, and science. Our main conclusion from this gender study is the performance of girls in reading. The fewer gender disparity is evident in the science scores, and the majority of boys perform better than girls in mathematics.
 
-## EcoSocio factors
+# Socioeconomic factors
 
-```{r}
-p1 <- ggplot(data = student_country,
-             aes(x = math, y = read)) +
-  geom_hex() +
-  labs(x = "Math Scores",
-       y = "Reading Scores") +
-  theme(legend.position="none")
+Socioeconomic status is an economic and sociological complete measure of a person's work experience, economic access to resources, and social standing in relation to others. Do these socioeconomic factors influence students' academic performance? In this section, we will investigate if different socioeconomic factors owned by a family have a significant impact on a student's academic performance. The student dataset in the `learningtower` package contains scores of 15-year-olds from triennial testing across the world. This dataset also includes information about their parents' education, family wealth, gender, and ownership of computers, internet, cars, books, rooms, desks, and dishwashers. Next, we will mainly explore some fascinating aspects of the influence of a few socioeconomic factors on student performance in math, reading, and science. Let us further explore the impact of a selection of socioeconomic factors on the students' score.
 
-p2 <- ggplot(data = student_country,
-             aes(x = math, y = science)) +
-  geom_hex() +
-  labs(x = "Math Scores",
-       y = "Science Scores") +
-  theme(legend.position = "none")
+Parents qualification is a vital element of childhood development. As previously stated, the student dataset in the package includes information regarding the parents qualification. In this section, we will investigate if both the mother's and father's qualifications have a significant impact on their child's performance. The mother's education and father's education variables are originally recorded in the student dataset in the `learningtower` package at distinct International Standard Classification of Education (ISCED) levels which are less than ISCED1 equivalent to ISCED 0, ISCED 1, ISCED 2, ISCED 3A and ISCED 3B, C, where:
 
-p3 <- ggplot(data = student_country,
-             aes(x = read, y = science)) +
-  geom_hex() +
-  labs(x = "Reading Scores",
-       y = "Science Scores") +
-  theme(legend.position="none")
-```
+-   level 0 indicates pre-primary education or no education at all
+-   level 1 indicates primary education or the first stage of basic education
+-   level 2 indicates lower secondary education or the second stage of basic education, and
+-   level 3 indicates upper secondary education. ISCED level 3 have been further classified into three distinct levels, with ideally very little difference in their classification. This may also be found in the publication [OECD Handbook for Internationally Comparative Education Statistics](https://www.oecd-ilibrary.org/oecd-handbook-for-internationally-comparative-education-statistics_5lmqcr2jfg0x.pdf?itemId=%2Fcontent%2Fpublication%2F9789264104112-en&mimeType=pdf) [@isced] published by OECD.
 
-```{r}
-#| label: fig-corrplot
-#| fig-cap: "The scatterplot displays the relationship between math, reading, and science scores for all PISA countries that participated in the experiment in 2022. This scatterplot shows that all three subjects have a significant and positive correlation with one another."
-#| fig-width: 9
-#| fig-pos: "H"
-#| out-width: "100%"
-p1+p2+p3
-```
+To determine the impact of the parents' qualification we first create data frames that are categorized by the various countries and regions and grouped by the father's and mother's qualification. We next compute the weighted average of math scores while accounting for student survey weights. Furthermore, we re-factored the parents qualification variable based on the multiple levels of classification, dividing it into four unique levels of education, namely early childhood, primary, lower, and secondary education. Furthermore, we display the weighted math average versus qualification colored by the re factored qualifications levels for both the mother and father using the `geom_quasirandom` function wrapped within `ggplot2` [@ggplot2], we further plot this with the help of `viridis` [@viridis] and `patchwork` [@patchwork] packages in R.
 
 ```{r}
 father_qual_math_read_sci_data <- student_country %>%
@@ -504,128 +479,10 @@ father_qual_math <- ggplot(father_qual_math_read_sci_data,
 
 father_qual_math + mother_qual_math
 ```
-
-```{r}
-z_star_95 <- qnorm(0.975)
-
-tv_math_data <- student_country %>%
-  group_by(country_name, television) %>%
-  dplyr::summarise(math_avg =
-                     weighted.mean(math,
-                                   w = stu_wgt,
-                                   na.rm = TRUE),
-                   lower = weighted.mean(math,
-                      w = stu_wgt, na.rm = TRUE) -
-                      z_star_95 * (sd(math, na.rm = TRUE)) /
-                      sqrt(length(math)),
-                   upper = weighted.mean(math,
-                      w = stu_wgt, na.rm = TRUE) +
-                      z_star_95 * (sd(math, na.rm = TRUE)) /
-                     sqrt(length(math)),
-                   .groups = "drop") %>%
-  dplyr::mutate(television = recode_factor(television,
-                "0" = "No TV",
-                "1" = "1 TVs",
-                "2" = "2 Tvs",
-                "3+" = "3+ TVs",
-               .ordered = TRUE)) %>%
-  na.omit() %>%
-  dplyr::select(country_name,
-                television,
-                math_avg,
-                lower,
-                upper)
-
-linear_model <- function(y, x){
-  coef(lm(y ~ x))[2]
-}
-
-tv_plot <- tv_math_data %>%
-  group_by(country_name) %>%
-  mutate(slope = linear_model(math_avg, television)) %>%
-  ungroup() %>%
-  mutate(country_name = fct_reorder(country_name, slope)) %>%
-  ggplot(aes(x=as.numeric(television), y=math_avg)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper),
-                colour="orange", fill = "orange",
-              alpha=0.45) +
-  geom_point(size=1.8) +
-  geom_line() +
-  facet_wrap(~country_name, ncol = 8, scales = "free") +
-#  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) +
-  theme(axis.text = element_blank()) +
-  labs(x = "Number of TVs",
-       y = "Average Mathematics Score")
-```
-
-```{r}
-#| label: fig-tvplot
-#| fig-cap: "Relationship  between number of TVs in a household and average math scores across countries. Number of TVs ranges from 0 to 3 or more. The orange bands indicate 95 percent standard confidence intervals. The impact of television on student performance is a contentious issue. It is interesting that in some countries for example in South Korea's effect appears to be positive, but in other countries like Poland and Germany there is a decline in average math scores."
-#| fig-width: 12
-#| fig-height: 12
-#| fig-pos: "H"
-#| out-width: "100%"
-tv_plot
-```
-
-```{r}
-z_star_95 <- qnorm(0.975)
-
-book_math_read_sci_data <- student_country %>%
-  group_by(country_name, book)  %>%
-  dplyr::summarise(math_avg =
-            weighted.mean(math,
-              w = stu_wgt, na.rm = TRUE),
-           bk_lower = weighted.mean(math,
-              w = stu_wgt, na.rm = TRUE) -
-              z_star_95 * (sd(math, na.rm = TRUE)) /
-              sqrt(length(math)),
-           bk_upper = weighted.mean(math,
-              w = stu_wgt, na.rm = TRUE) +
-              z_star_95 * (sd(math, na.rm = TRUE)) /
-              sqrt(length(math)), .groups = "drop")  %>%
-  dplyr::mutate(book = recode_factor(book,
-                                     "0-10" = "1",
-                                     "11-25" = "11",
-                                     "26-100" = "26",
-                                     "101-200" = "101",
-                                     "201-500" = "201",
-                                     "more than 500" = "500",
-                                     .ordered = TRUE)) %>%
-  na.omit()
-
-linear_model <- function(y, x){
-  coef(lm(y ~ x))[2]
-}
+The @fig-qualplot depicts the impact of mothers' and fathers' qualifications on students academic performance. The @fig-qualplot allows us to deduce a very important and remarkable insight in which we see a constant increase in the students' academic performance when both mother and father qualifications shift towards higher levels of education. The bold horizontal black lines that we see in each category for mother's and father's qualification here represent median score for that qualification category across countries. As the parent attains higher qualifications, we notice an increasing trend in these medians for each category. Taking a closer look at the @fig-qualplot, we can see that there is a considerable boost in scores when both the mother and father have upper secondary education. Furthermore, the `geom_quasirandom()` function in the `ggbeeswarm` [@ggbeeswarm] package makes this plot more accessible and understandable by providing a way to offset points inside categories to prevent overplotting. Thus, we can clearly see that both the mother's and father's qualifications has a significant influence on the student's academic performance, with the more educated the parent more likely to have their child academically performing better.
 
 
-book_plot <- book_math_read_sci_data %>%
-  group_by(country_name) %>%
-  mutate(slope = linear_model(math_avg, book)) %>%
-  ungroup() %>%
-  mutate(country_name = fct_reorder(country_name, slope)) %>%
-  ggplot(aes(x=as.numeric(book), y=math_avg)) +
-  geom_ribbon(aes(ymin = bk_lower, ymax = bk_upper),
-                colour="orange", fill="orange", alpha=0.45) +
-  geom_point(size=1.8) +
-  geom_line(aes(group = country_name)) +
-  facet_wrap(~country_name, ncol = 8, scales = "free") +
-  theme(axis.text = element_blank()) +
-  labs(x = "Number of Books",
-       y = "Average Mathematics Score")
-```
-
-```{r}
-#| label: fig-bookplot
-#| fig-cap: "Impact of the number of books on average math score. Number of books ranges from 0 to 500 and more. 95 percent standard confidence bands shown in orange. Math scores generally increase as the number of books increases. Averages for some countries at the higher number of books are less reliable, and hence the decline reflects more that there are few households with this many books than a true decline."
-#| fig-width: 12
-#| fig-height: 12
-#| fig-pos: "H"
-#| out-width: "100%"
-
-book_plot
-```
-
+Students are becoming more active and adept learners as technologies like computers and internet mature and becoming more commonplace over the past twenty years. We will investigate if having a computer with internet access at the age of 15 has a positive or negative impact on student academic achievement. We will plot the average math results of the several nations that participated in the PISA experiment in 2022 to determine the effect of owning a computer and having access to the internet. We first create `data.frame` that is grouped by the nations and the frequency of whether the student possesses a computer or not, as well as a students' access to the internet or not. We will plot this result against the weighted average mathematical score to determine the influence of various of television and internet on the student academic performance using the several functions available in the `ggplot2`[@ggplot2] package.
 ```{r}
 int_math_read_sci_data <- student_country %>%
   group_by(country_name, internet) %>%
@@ -675,8 +532,130 @@ internet_plot <- int_math_read_sci_data %>%
 #| out-width: "100%"
 computer_plot + internet_plot
 ```
+In the @fig-compintplot, we see that students who own a computer and have access to the internet consistently outperform students who do not own a computer or have access to the internet at all. No country has exempted from this finding. Thus, on average, a 15-year-old student's access to a computer and the internet is unquestionably has significant positive influence on their academic performance. While the increase in academic performance is expected, but the magnitude of this increase and the associated educational benefits may be used by policymakers to improve their own domestic access to these technologies.
 
+Followed on previous discussion, computer has became an essential in learning experience. In this segment of the article, we investigate the influence of number of computers by countries/regions, as well as whether this technology has a significant impact on students' academic performance. The computer variables that are recorded in the student dataset is a factor variable that records whether or not the students participating in this study have a computer and, if they do, the quantity of computers per family is recorded via the PISA survey. Especially, in 2022 dataset, the survey also included the laptop variable. The computer and laptop variables are initially recorded has four levels: "No computer/laptop", "1 computer/laptop", "2 computers/laptops", or "3+ computer/laptops", respectively. 
+Because we are interested in researching the impact of these computers and laptops on the students' scores, we visualized the confidence intervals for each of these levels in order to determine the uncertainty of the results at each level. We begin with initially creating a `data.frame` that is grouped by country and the number of computers and laptops per household for each country. Next we fit a linear model between the math average with computer and laptops in the 2022 PISA data and finally plot the impact for all countries sorted as per the slope with the help of the functions available in the `ggplot2` [@ggplot2] package.
 
+```{r}
+z_star_95 <- qnorm(0.975)
+
+com_math_data <- student_country %>%
+  group_by(country_name, computer_n) %>%
+  dplyr::summarise(math_avg =
+                     weighted.mean(math,
+                                   w = stu_wgt,
+                                   na.rm = TRUE),
+                   lower = weighted.mean(math,
+                      w = stu_wgt, na.rm = TRUE) -
+                      z_star_95 * (sd(math, na.rm = TRUE)) /
+                      sqrt(length(math)),
+                   upper = weighted.mean(math,
+                      w = stu_wgt, na.rm = TRUE) +
+                      z_star_95 * (sd(math, na.rm = TRUE)) /
+                     sqrt(length(math)),
+                   .groups = "drop") %>%
+  dplyr::mutate(computer_n = recode_factor(computer_n,
+                "0" = "No Computer",
+                "1" = "1 Computers",
+                "2" = "2 Computers",
+                "3+" = "3+ Computers",
+               .ordered = TRUE)) %>%
+  na.omit() %>%
+  dplyr::select(country_name,
+                computer_n,
+                math_avg,
+                lower,
+                upper)
+
+linear_model <- function(y, x){
+  coef(lm(y ~ x))[2]
+}
+
+com_plot <- com_math_data %>%
+  group_by(country_name) %>%
+  mutate(slope = linear_model(math_avg, computer_n)) %>%
+  ungroup() %>%
+  mutate(country_name = fct_reorder(country_name, slope)) %>%
+  ggplot(aes(x=as.numeric(computer_n), y=math_avg)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper),
+                colour="orange", fill = "orange",
+              alpha=0.45) +
+  geom_point(size=1.8) +
+  geom_line() +
+  facet_wrap(~country_name, ncol = 8, scales = "free") +
+#  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) +
+  theme(axis.text = element_blank()) +
+  labs(x = "Number of Computers",
+       y = "Average Mathematics Score")
+```
+
+```{r}
+z_star_95 <- qnorm(0.975)
+
+lap_math_data <- student_country %>%
+  group_by(country_name, laptop_n) %>%
+  dplyr::summarise(math_avg =
+                     weighted.mean(math,
+                                   w = stu_wgt,
+                                   na.rm = TRUE),
+                   lower = weighted.mean(math,
+                      w = stu_wgt, na.rm = TRUE) -
+                      z_star_95 * (sd(math, na.rm = TRUE)) /
+                      sqrt(length(math)),
+                   upper = weighted.mean(math,
+                      w = stu_wgt, na.rm = TRUE) +
+                      z_star_95 * (sd(math, na.rm = TRUE)) /
+                     sqrt(length(math)),
+                   .groups = "drop") %>%
+  dplyr::mutate(laptop_n = recode_factor(laptop_n,
+                "0" = "No Laptop",
+                "1" = "1 Laptops",
+                "2" = "2 Laptops",
+                "3+" = "3+ Laptops",
+               .ordered = TRUE)) %>%
+  na.omit() %>%
+  dplyr::select(country_name,
+                laptop_n,
+                math_avg,
+                lower,
+                upper)
+
+linear_model <- function(y, x){
+  coef(lm(y ~ x))[2]
+}
+
+lap_plot <- lap_math_data %>%
+  group_by(country_name) %>%
+  mutate(slope = linear_model(math_avg, laptop_n)) %>%
+  ungroup() %>%
+  mutate(country_name = fct_reorder(country_name, slope)) %>%
+  ggplot(aes(x=as.numeric(laptop_n), y=math_avg)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper),
+                colour="salmon", fill = "salmon",
+              alpha=0.45) +
+  geom_point(size=1.8) +
+  geom_line() +
+  facet_wrap(~country_name, ncol = 8, scales = "free") +
+#  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) +
+  theme(axis.text = element_blank()) +
+  labs(x = "Number of Laptops",
+       y = "Average Mathematics Score")
+```
+
+```{r}
+#| label: fig-comlap
+#| fig-cap: "Relationship  between number of computers and laptops in a household and average math scores across countries. Number of computers/laptops ranges from 0 to 3 or more. The orange bands indicate 95 percent standard confidence intervals. The impact of computer/laptop on student performance is a contentious issue. It is interesting that the effect of computers and laptops are different across countries"
+#| fig-width: 12
+#| fig-height: 12
+#| fig-pos: "H"
+#| out-width: "100%"
+com_plot + lap_plot
+```
+In the @fig-comlap, we can see highly striking patterns as well as a significant influence of television on students' academic performance. We have arranged the nations in the @fig-comlap according to the slope of math average scores fitted against the different levels of computer/laptop described previously. 
+United Arab Emirates and Indonesia have a lower influence of computer on student performance, whereas Brazil and Vietnam have a rising tendency and therefore a larger impact of computer on students' performance. Furthermore, the confidence interval plotted in the figure @fig-comlap show that there is a lot of uncertainty in the level of scores when a household have more computers in the majority of the countries. 
+On the other hand, Cambodia and Georgia have a lower influence of laptop on student performance, whereas Slovakia and Hungary have a rising tendency and therefore a larger impact of laptops on students' performance. Taking a closer look we observe that when the slope of laptop increases in countries, compared to the slope of computer, the confidence interval of such countries becomes narrower. Hence laptop could have more potential educational benefit compared to computer. It's quite interesting because the similar nature of computer and laptop, we would assume the effect of these two assets should be similar, yet the @fig-comlap has not only shown a different result. 
+Nevertheless, having multiple computers and laptops may turn out to be having negative influence on student's performance in most of the countries, excessive access could lead to distractions or excessive screen time, which can negatively impact performance.
 
 ## Temporal Analysis
 
