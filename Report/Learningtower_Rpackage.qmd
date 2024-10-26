@@ -661,44 +661,46 @@ Nevertheless, having multiple computers and laptops may turn out to be having ne
 
 ## Temporal Analysis
 
+The 2022 PISA results offer a unique opportunity to analyze the impact of the COVID-19 pandemic on student's academic performance. As countries faced prolonged school closures, remote learning challenges, and varying socio-economic pressures, concerns grew over potential learning losses and their effects on core academic skills. In this section, our temporal analysis will examine how student performance in each subject may have shifted compared to pre-pandemic data, providing insights into the pandemic's educational impact. Additionally, the study will revisit the gender gap, a persistent trend in PISA assessments. By investigating whether this gap has narrowed or persisted in 2022, we can better understand how gender disparities in education might have evolved, offering valuable guidance for future efforts to support equity and learning recovery worldwide.
 
 ### Pandemic effects
+To better comprehend pandemic effect on student's academic performance, We illustrate the temporal trend of Australia in comparison to a few other nations. We evaluate these countries performance using a statistical procedure bootstrapping using the `map_dfr` function which re-samples a single dataset to generate a large number of simulated samples. We will compare the results of these bootstrap samples across all the years they participated in PISA.
+
 ```{r}
 # Load student data, and filter to country, cache a copy of the data
 # to save downloading every time paper is knitted
 
-# if (!file.exists("data/student_all.rda")) {
-#   student_all <- load_student("all")
-#   save(student_all, file="data/student_all.rda")
-# } else {
-#   load("data/student_all.rda")
-# }
-student_all <- load(here("data/student.rda"))
+if (!file.exists("data/student_all.rda")) {
+  student_all <- load_student("all")
+  save(student_all, file="data/student_all.rda")
+} else {
+  load("data/student_all.rda")
+}
+
 # Give countries their name, subset to four, and select only variables needed
-student_country <- left_join(student,
-                             countrycode,
-                             by = "country") %>%
-  dplyr::filter(country_name %in%
-                  c("Australia",
-                    "Germany",
-                    "Peru",
-                    "Qatar",
-                    "Belgium",
-                    "Brazil",
-                    "Denmark",
-                    "Greece",
-                    "Thailand",
-                    "Singapore",
-                    "Canada",
-                    "Portugal")) %>%
-  dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
-  na.omit() %>%
-  pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
+student_country_all <- left_join(student_all,
+                                 countrycode, by = "country") %>%
+                        dplyr::filter(country_name %in%
+                                c("Australia",
+                                  "Germany",
+                                  "Peru",
+                                  "Qatar",
+                                  "Belgium",
+                                  "Brazil",
+                                  "Denmark",
+                                  "Greece",
+                                  "Thailand",
+                                  "Singapore",
+                                  "Canada",
+                                    "Portugal")) %>%
+                        dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
+                        na.omit() %>%
+                        pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
 
 # Compute the bootstrap confidence intervals, and cache result
 if (!file.exists("data/all_bs_cf.rda")) {
   all_bootstrap <- map_dfr(1:100, ~{
-    student_country %>%
+    student_country_all %>%
     group_by(country_name, #year,
              subject) %>%
     #sample_n(size = n(), replace = TRUE) %>%
@@ -720,7 +722,7 @@ if (!file.exists("data/all_bs_cf.rda")) {
       .groups = "drop")
 
   # compute original estimate of average and join
-  all_avg <- student_country %>%
+  all_avg <- student_country_all %>%
     group_by(country_name, year, subject) %>%
     summarise(
       avg = weighted.mean(score,
@@ -728,8 +730,8 @@ if (!file.exists("data/all_bs_cf.rda")) {
       .groups = "drop")
 
   all_bs_cf <- left_join(all_avg,
-                      all_bootstrap_ci,
-                      by = c("country_name",
+                         all_bootstrap_ci,
+                         by = c("country_name",
                              "year",
                              "subject"))
 
@@ -776,43 +778,55 @@ country_names_highlight <- c("Australia",
 math_all_bs_cf_plot <- all_bs_cf %>% 
   dplyr::filter(subject == "math") %>% 
   ggplot(aes(x = year, 
-             y = avg)) +
+             y = avg,
+             colour = country_name)) +
   geom_point(alpha = 0.45) +
   geom_line(aes(group = country_name)) +
-  gghighlight::gghighlight(country_name %in% country_names_highlight) +
+  #gghighlight::gghighlight(country_name %in% country_names_highlight) +
   labs(
     title = "Maths",
      x = "",
-     y = "Score") 
+     y = "Score") +
+  theme(legend.position="none") 
+  
 
 
 read_all_bs_cf_plot <- all_bs_cf %>% 
   dplyr::filter(subject == "read") %>% 
-  ggplot(aes(x = year, 
-      y = avg)) +
+  ggplot(aes(x = year,
+             y = avg,
+             colour = country_name)) +
   geom_point(alpha = 0.45) +
   geom_line(aes(group = country_name)) +
-  gghighlight::gghighlight(country_name %in% country_names_highlight) +
+  #gghighlight::gghighlight(country_name %in% country_names_highlight) +
   labs(
     title = "Reading",
      x = "",
-     y = "Score") 
+     y = "Score") +
+  theme(legend.position="none") 
+  
 
 sci_all_bs_cf_plot <- all_bs_cf %>% 
   dplyr::filter(subject == "science") %>% 
   ggplot(aes(x = year, 
-      y = avg)) +
+             y = avg,
+             colour = country_name)) +
   geom_point(alpha = 0.45) +
   geom_line(aes(group = country_name)) +
-  gghighlight::gghighlight(country_name %in% country_names_highlight) +
   labs(
     title = "Science",
      x = "",
-     y = "Score")
+     y = "Score") +
+  theme(legend.position="right") 
 
 
 math_all_bs_cf_plot + read_all_bs_cf_plot + sci_all_bs_cf_plot
 ```
+Taking a deeper look at the figure @fig-bsplot, we notice the changing scales of their scores in all three plots of math, reading, and science and we could observe that there's a obvious decline in mathematics score across countries, only Singapore still demonstrate increase in scores; same in reading most countries have decline, yet only Qatar and Peru have shown improvement. As for science, there's no clear drop in score, most countries have maintained in the same level as previous years.
+
+
+
+
 
 ### Gender Gaps Across Subjects and Years
 
