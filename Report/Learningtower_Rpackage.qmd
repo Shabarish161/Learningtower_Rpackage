@@ -55,15 +55,31 @@ student_country <- left_join(student_2022_full,
 ```
 # Abstract
 
-The learningtower R package offers a simplified method for examining data from the 2000–2022 Programme for International Student Assessment (PISA). The Organisation for Economic Co-operation and Development (OECD) administers PISA, a triennial international study that assesses educational systems around the world by assessing 15-year-old students' reading, math, and science proficiency. The learningtower package, which focusses on important aspects like gender disparities, socioeconomic impacts, and temporal trends in student performance, provides tools for data curation, visualisation, and statistical modelling. It is intended to enhance educational research and policy creation. Learningtower helps users gain insights into global educational performance and inequities across nations by making PISA data more easily available and workable.
+A powerful tool for exploring and analysing data from the 2000–2022 Programme for International Student Assessment (PISA), which is led by the Organisation for Economic Co-operation and Development (OECD), is the learningtower R package. Reading, math, and science ability among 15-year-old pupils is measured as part of the triennial PISA international research, which assesses educational systems around the world. This thorough evaluation shows the efficacy of various educational policies and methods across countries in addition to offering insights on student accomplishment.
+
+With a suite of tools that improve data curation, visualisation, and statistical modelling, the learningtower package focusses on important areas of educational research, including gender inequities, socioeconomic impacts, and temporal trends in student performance. Learningtower makes it easier for academics, decision-makers, and educators to access and manipulate PISA data, allowing them to perform comprehensive analyses that support evidence-based decision-making.
+
+The learningtower package's intuitive design and features enable users to find important information about the performance of education around the world, emphasising injustices and differences between nations. Learningtower plays a critical role in promoting educated conversations on educational results and equity by making PISA data easier to access and handle. This, in turn, helps to improve educational practices and policies globally.
 
 # Background
 
-The learningtower package, which focusses on school and student-level data like performance indicators, socioeconomic backgrounds, and educational resources, contains educational datasets from international exams like PISA before 2022. After being cleaned and standardised, these datasets go through modifications including variable alignment for consistency and student-teacher ratio calculations. Key performance indicators include student performance in disciplines including reading, mathematics, and science; school and country identities; and educational resources (e.g., staff shortages, school size). The information makes it possible to analyse regional and worldwide trends as well as differences in educational systems, which sheds light on the variables influencing resource allocation and academic performance.
+With its emphasis on school and student-level data, the learningtower R package is an extensive resource that offers crucial insights into a range of educational measures, such as socioeconomic backgrounds, performance indicators, and the accessibility of educational resources. A multitude of datasets from worldwide examinations, including the Programme for worldwide Student Assessment (PISA) before 2022, which assess students' proficiency in a variety of disciplines globally, are included in this bundle.
+
+To guarantee correctness and dependability, learningtower's datasets go through a rigorous cleaning and standardisation procedure. This entails a number of adjustments, including computing important metrics like the student-teacher ratio and aligning variables for uniformity. Making these changes is essential to improving the dataset's usability and preparing it for in-depth study.
+
+Student accomplishments in foundational subjects like science, math, and reading are among the main performance indicators that the learningtower package records. Furthermore, the databases include crucial data on national and school identities as well as the accessibility of educational resources, which may include elements like staffing levels and school size. These indicators offer a framework for assessing how many factors affect academic performance and resource allocation, and they are crucial for comprehending the educational landscape.
+
+The learningtower package helps academics and policymakers identify inequalities in educational systems by making it easier to analyse regional and worldwide trends in educational results. These analyses provide insight into the different elements affecting the allocation of resources, the effectiveness of instruction, and eventually, student achievement. Learningtower's all-encompassing strategy seeks to advance evidence-based tactics for raising educational quality and equity while deepening our understanding of educational dynamics.
 
 # Introduction
 
-With an emphasis on the Programme for International Student Assessment (PISA) data from 2000 to 2022, the learningtower package is an effective tool for analysing data on education around the world. Every three years, the OECD administers PISA, which evaluates 15-year-old students' proficiency in reading, arithmetic, and science to gauge their capacity to apply knowledge to real-world issues. This enables nations to track changes in schooling over time. Although PISA data can be found on the OECD website, its complicated structure and variety of formats make it difficult to analyse. These problems are addressed by the learningtower package, which integrates complete data on student performance, school resources, teacher-student ratios, and socioeconomic factors while cleaning, standardising, and preparing the data for extensive cross-sectional and longitudinal research. The program now provides the most recent information on worldwide educational trends thanks to the recent addition of the 2022 dataset, allowing for thorough cross-national comparisons and assessments of the variables affecting student results.
+With a focus on the Programme for International Student Assessment (PISA) data from 2000 to 2022, the learningtower package is a strong and adaptable tool for evaluating educational data globally. The Organisation for Economic Co-operation and Development (OECD) administers PISA every three years to assess 15-year-old pupils' competency in important academic subjects like science, arithmetic, and reading. This test is intended to gauge how well students can apply their knowledge and abilities to practical issues, offering important information about how ready they are for adulthood and further education. Countries can track changes in their educational systems over time and evaluate the efficacy of their policies and practices by assessing students' proficiency in these fundamental disciplines.
+
+Although PISA data is accessible to the general public via the OECD website, researchers and analysts may encounter considerable difficulties due to the datasets' intricate structure and variety of forms. Effective analysis may be hampered by these intricacies, making it challenging to glean significant insights from the abundance of available data. By combining extensive datasets covering teacher-student ratios, school resources, student performance measures, and important socioeconomic aspects, the learningtower package tackles these issues head-on. Learningtower enables comprehensive cross-sectional and longitudinal research through a methodical process of data cleansing, standardisation, and preparation, making it easy for users to traverse the complexities of educational data.
+
+Moreover, the recent addition of the 2022 dataset enhances the package's relevance and utility, providing the most current information on global educational trends. This update allows for thorough cross-national comparisons and assessments, enabling researchers and policymakers to identify patterns and correlations that impact student outcomes. By exploring the relationships between educational resources, teaching methodologies, and student performance, the learningtower package empowers users to draw informed conclusions and develop evidence-based strategies aimed at improving educational equity and effectiveness across diverse contexts.
+
+In conclusion, the learningtower package is an invaluable tool for educators and policymakers who want to comprehend and address the global variables driving student accomplishment, in addition to being a vital resource for education researchers.
 
 ## PISA
 
@@ -723,35 +739,35 @@ The 2022 PISA results offer a unique opportunity to analyze the impact of the CO
 To better comprehend pandemic effect on student's academic performance, We illustrate the temporal trend of Australia in comparison to a few other nations. We evaluate these countries performance using a statistical procedure bootstrapping using the `map_dfr` function which re-samples a single dataset to generate a large number of simulated samples. We will compare the results of these bootstrap samples across all the years they participated in PISA.
 
 ```{r}
+# Set the working directory
+setwd("/Users/shabarish/Desktop/Project/Learningtower_Rpackage") #Set your own working directory
+
 # Load student data, and filter to country, cache a copy of the data
 # to save downloading every time paper is knitted
 
 if (!file.exists("data/student_all.rda")) {
-  student_all <- load_student("all")
-  save(student_all, file="data/student_all.rda")
+    student_all <- load_student("all")
+
+    # Check if student_all was created successfully
+    if (!exists("student_all")) {
+        stop("Error: student_all object was not created.")
+    }
+
+    # Attempt to save the data
+    save(student_all, file = "data/student_all.rda")
 } else {
-  load("data/student_all.rda")
+    load("data/student_all.rda")
 }
 
-# Give countries their name, subset to four, and select only variables needed
-student_country_all <- left_join(student_all,
-                                 countrycode, by = "country") %>%
-                        dplyr::filter(country_name %in%
-                                c("Australia",
-                                  "Germany",
-                                  "Peru",
-                                  "Qatar",
-                                  "Belgium",
-                                  "Brazil",
-                                  "Denmark",
-                                  "Greece",
-                                  "Thailand",
-                                  "Singapore",
-                                  "Canada",
-                                    "Portugal")) %>%
-                        dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
-                        na.omit() %>%
-                        pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
+# Proceed with the data manipulation
+student_country_all <- left_join(student_all, countrycode, by = "country") %>%
+    dplyr::filter(country_name %in%
+        c("Australia", "Germany", "Peru", "Qatar", "Belgium",
+          "Brazil", "Denmark", "Greece", "Thailand", "Singapore",
+          "Canada", "Portugal")) %>%
+    dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
+    na.omit() %>%
+    pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
 
 # Compute the bootstrap confidence intervals, and cache result
 if (!file.exists("data/all_bs_cf.rda")) {
