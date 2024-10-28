@@ -79,9 +79,65 @@ The `learningtower` package primarily comprised of three datasets: `student`, `s
 
 The motivation for developing the `learningtower` package was sparked by the announcement of the PISA 2018 results, which caused a collective wringing of hands in the Australian press, with headlines such as ["Vital Signs: Australia's slipping student scores will lead to greater income inequality"](https://theconversation.com/vital-signs-australias-slipping-student-scores-will-lead-to-greater-income-inequality-128301) and ["In China, Nicholas studied math 20 hours a week. In Australia, it's three"](https://www.smh.com.au/education/in-china-nicholas-studied-maths-20-hours-a-week-in-australia-it-s-three-20191203-p53ggv.html). That's when several academics from Australia, New Zealand, and Indonesia decided to make things easier by providing easy access to PISA scores as part of the [ROpenSci OzUnconf](https://ozunconf19.ropensci.org/), which was held in Sydney from December 11 to 13, 2019.
 
-The data from this survey, as well as all other surveys performed since the initial collection in 2000, is freely accessible to the public. However, downloading and curating data across multiple years of the PISA study could be a time consuming task. As a result, we have made a more convenient subset of the data freely available in a new R package called `learningtower`, along with sample code for analysis.
+Specific Goals related to the Learningtower package
 
-`learningtower` developers are committed to providing R users with data to analyse PISA results every three years. Our package's future enhancements include updating the package every time additional PISA scores are announced. Note that, in order to account for post COVID-19 problems, OECD member nations and associates decided to postpone the PISA 2021 evaluation to 2022 and the PISA 2024 assessment to 2025.
+1. Simplified Access to Complete PISA Data: Make a user-friendly R package available that makes it easier to access a well selected, reliable, and complete subset of PISA data from 2000 to the most recent year. By doing this, users will need to spend less time and technical effort downloading, cleaning, and standardising the data.
+
+2. Improved Data for Comparative Analysis: Make it possible to conduct longitudinal and cross-sectional studies of educational performance across nations, giving researchers the ability to monitor trends over time and evaluate how different socioeconomic factors affect student outcomes.
+
+3. Emphasis on Educational Equity: Encourage the investigation of performance gaps, paying special attention to variables including gender, socioeconomic position, and school resources. This goal is to enable policymakers and educational academics to recognise and resolve disparities both within and across nations.
+
+4. Promoting Policy-Relevant Insights: Make it possible for academics and policymakers to obtain practical insights that guide instructional techniques, particularly with regard to achievement gaps. The package aids in the development of policy interventions aimed at underperforming populations by examining the variables that affect student success.
+
+5. Simple Usability for the R Community: Provide thorough documentation, effective data structures in R, and sample analytic code so that people with different levels of experience can interact with PISA data for educational research.
+
+6. Continuous upgrades and Data Consistency: Make sure that learningtower stays pertinent for the demands of contemporary research by committing to frequent package upgrades that incorporate fresh PISA data as it becomes available (next in 2025). Furthermore, in order to accommodate modifications in OECD schedules, the program guarantees consistency of variables across several assessment years in order to handle post-COVID-19 education dynamics.
+
+7. Encouraging Reproducibility and Transparency: Make the carefully selected PISA data and analytic techniques publicly accessible via GitHub to encourage transparency and allow other researchers to duplicate and expand on the results.
+
+By achieving these objectives, the learningtower package hopes to become a vital tool for educational research, advancing evidence-based perspectives on global trends in education and aiding initiatives to promote fair educational opportunities across the globe.
+
+# Methodology
+
+The learningtower R program was developed through a series of methodical procedures, including data collection, processing, variable consistency checks, and analysis, for the study of PISA data from 2000 to 2022. Each phase was meant to ensure that the data remains robust, consistent, and available for educational research and comparative studies.
+
+1. Data Acquisition and Import
+
+a. Data Download: The most recent PISA datasets, which included student and school data from several nations, were downloaded in SAS or SPSS formats from the OECD website
+
+b. Data Loading in R: Following the download, the data was loaded into the R environment using scripts that made managing big SPSS/SAS files easier and guaranteed R compatibility.
+
+2. Data Cleaning and Transformation
+
+a. Initial Cleaning: To eliminate discrepancies, including missing or incorrect entries, and to reformat categorical variables for standardisation, data wrangling programs were used. The data was prepared for additional processing thanks to this first cleaning.
+
+b. Variable Recategorisation: To ensure uniformity between PISA years, variables of interest were reclassified where needed.
+
+c. Taking care of Missing Variables: The 2022 dataset lacked some variables, including "possession of desk." These variables were either explicitly selected as character variables or, when appropriate, substituted with comparable indications in order to address this.
+
+3. Ensuring Variable Consistency
+
+a. Cross-Year Alignment: Maintaining the consistency of important variables between PISA assessment years was a significant methodological difficulty. Some variables, such as the WEALTH index, were absent from newer datasets due to changes in questionnaire design. To retain a measure of socioeconomic level in these situations, other variables such as ESCS (Economic, Social, and Cultural level) were employed.
+
+b. Categorisation Adjustments: To guarantee consistency in analysis, the classification for parental education levels, household belongings, and technological access was standardised across datasets.
+
+4. Data Transformation and Storage
+
+a. Data Transformation: The processed data was transformed and saved as.rds files after being cleaned and having its consistency checked. The cleaned and categorised datasets are stored in these RDS files, which are small and easy to load quickly in R.
+
+b. File Organisation by Year: To assist cross-sectional research within each year and to enable longitudinal analysis across years, each PISA dataset was saved independently. This method guarantees that the data by year may be readily accessed by researchers without the need for extra processing.
+
+5. Validation and Quality Checks
+Each dataset was examined for accuracy and completeness following processing. Particularly for new or altered variables, the integrity of socioeconomic indicators and the coherence of variable definitions were verified twice.
+
+6. Data Analysis Techniques
+
+a. Bootstrap Sampling: For confidence intervals in analyses like gender gaps, socioeconomic effect, and longitudinal trends, bootstrap sampling was used to produce reliable results.
+
+b. The dataset is appropriate for both cross-sectional and longitudinal educational research since methods were used to investigate trends in gender disparities, socioeconomic factors, and the influence of variables across time.
+
+Learningtower's high-quality, consistent, and easily accessible PISA data is guaranteed by this methodical approach, which makes thorough analysis and policy-oriented educational research possible.
+
 
 # Compiling the data(more details about the process and problems faced)
 
@@ -916,7 +972,17 @@ stu_ggap_summ_plotdf %>%
        title = "Highlighting key countries across all three subjects")
 ```
 
+
 # Discussion
+
+## Results
+The learningtower package's study of PISA data reveals important educational trends that affect student performance globally, particularly in the areas of gender, socioeconomic status, and technology access. Girls typically outperform boys in reading across all countries, according to the gender-based data, with particularly large gaps observed in Jordan, Palestine, and the United Arab Emirates. This pattern implies that although reading is typically thought of as a subject in which girls do best, this disparity may potentially be exacerbated by cultural and educational variables. Though some nations, like Sweden and Kazakhstan, exhibit near parity, suggesting potential success in implementing gender-neutral or inclusive educational approaches in maths, boys still often perform better than girls in maths. In contrast, gender variations in science scores are negligible in many regions, indicating that science instruction may inherently support more balanced performance between boys and girls.
+
+In every subject, socioeconomic considerations show up as important predictors of academic performance. Higher scores are typically attained by students with more educated parents and those from higher ESCS (Economic, Social, and Cultural Status) backgrounds. Learning is impacted by parental support, family wealth, and access to educational resources, as seen by the positive link found between socioeconomic resources and student performance. Additionally, having access to technology—such as home computers and internet connectivity—is substantially linked to better academic achievement; kids who have these resources often outperform those who do not. Performance differences are less in nations with higher levels of digital penetration, indicating that equal access to technology may be crucial in closing the achievement gap between kids from different socioeconomic backgrounds.
+
+Student performance trends throughout time demonstrate the COVID-19 pandemic's effects, especially in mathematics, where 2022 scores fell in many nations. This pattern might be a reflection of the difficulties associated with distance learning and the scarcity of resources while schools are closed. On the other hand, science and reading scores were comparatively stable, with several nations—like Peru and Qatar—even seeing improvements in their reading proficiency. This resiliency in science and reading might indicate that these courses were better served by online resources or that students were better able to adjust to distance learning for these skills. The significance of flexible teaching strategies and infrastructure is emphasised by the temporal analysis, which can protect educational systems from interruptions and support the maintenance of uniform learning outcomes across disciplines.
+
+The learningtower package's mapping and visualisation capabilities offer a thorough understanding of these findings, facilitating more understandable cross-national comparisons and emphasising distinctive regional insights. The significance of investments in digital and educational resources is further supported by the fact that nations with strong digital infrastructure and fair socioeconomic conditions typically exhibit narrower achievement inequalities. Together, these results highlight the necessity of evidence-based approaches that tackle regional and national educational issues in addition to global trends. The learningtower package supports efforts to build more inclusive, equitable, and resilient educational systems around the world by educating educators and policymakers about these important discoveries.
 
 ## Limitations
 
@@ -924,11 +990,22 @@ stu_ggap_summ_plotdf %>%
 
 - Variables Consistency: The construction of questionnaire would be different every survey, as well as the coding mechanism of the original dataset, so curation process must be examined everytime to ensure the consistency of variables.
 
+- Handling of Missing Data: Some variables are missing or incomplete in certain years or countries. These missing data points can limit the analysis and reduce comparability accross regions or over time.
+
+- Dependency on External data formats: The package relies on data orginally available in SPSS or SAS formats from the OECD. Any changes in these formats, structures or access protocols on the OECD website could impact the package's ability to import and process the data accurately.
+
+- Potential Sampling Bias: Although PISA aims for representative samples, certain countries or regions may face challenges in collecting the data that fully reflects their population. This could introduce sampling bias.
+
 # Conclusion
 
-An important improvement is the addition of the 2022 PISA data to the learningtower R package, which provides current insights from student and school statistics. By providing a thorough grasp of student performance, school characteristics, and the factors impacting learning outcomes, this update facilitates a deeper comprehension of global educational dynamics. The program facilitates cross-country comparisons and rigorous longitudinal analysis by guaranteeing consistency across datasets from 2000 to 2022.
+The learningtower R package has been significantly improved with the addition of the 2022 PISA data, providing researchers, educators, and policymakers with a useful tool for examining and comprehending student performance and school characteristics worldwide. This most recent version guarantees a consistent and thorough dataset covering the years 2000–2022, in addition to providing up-to-date insights concerning educational outcomes. The software enables precise cross-country comparisons and thorough longitudinal studies by preserving consistency in variables and data structures, both of which are essential for spotting and solving educational trends.
 
-The learningtower package's improvements give educators, researchers, and policymakers useful tools for evaluating and enhancing educational institutions. The package promotes data-driven initiatives to address educational issues and advance fairness by providing a comprehensive strategy that integrates student and school data. Learningtower will remain a vital tool for expanding our knowledge of global educational trends and promoting significant learning gains as long as it is updated to include upcoming PISA statistics.
+The learningtower package offers a strong framework for investigating important topics in education, including socioeconomic effects, gender inequality, and the function of technology in the classroom. Users can explore the ways in which various factors, such as parental education levels and digital access, impact student accomplishment with this degree of exposure to comprehensive, curated data. This makes it possible for stakeholders to make data-driven choices that have a direct impact on educational policies and initiatives meant to raise educational quality and equity.
+
+The learningtower package stresses the value of open, repeatable research in addition to its analytical capabilities. The package facilitates a collaborative environment where discoveries may be shared and validated across research groups by providing the data and tools in an easily accessible format. This openness promotes future developments in the discipline when new PISA data becomes available and enhances the validity of educational analyses.
+
+In the future, the learningtower package will continue to be updated with new PISA cycles, maintaining its usefulness and relevance as a vital resource for researching worldwide trends in education. The package's capacity to include new data will guarantee that it continues to be an essential tool for comprehending and resolving educational inequities as the educational landscape changes, especially in reaction to crises like the COVID-19 pandemic. Learningtower will promote evidence-based educational advancements with continued contributions and enhancements, eventually leading to a more effective and equitable global education system.
+
 
 # Reference
  
