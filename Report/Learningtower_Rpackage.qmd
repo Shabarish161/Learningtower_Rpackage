@@ -1,5 +1,5 @@
 ---
-title: "Report of developing Learningtower R package"
+title: "Learningtower: Comparative Analysis of PISA 2022 and Historical Data"
 author:
 - name: Shabarish Sai Subramanian
   degrees: Master of Business Analytics
@@ -21,15 +21,13 @@ knitr::opts_chunk$set(echo = FALSE,
                       error = FALSE)
 ```
 
-```{r loadlibraries}
+```{r libraries}
 library(here)
 library(brolgar)
-library(rjtools)
 library(learningtower)
 library(tidyverse)
 library(ggplot2)
 library(viridis)
-library(dplyr)
 library(patchwork)
 library(plotly)
 library(ggbeeswarm)
@@ -41,6 +39,7 @@ library(ggrepel)
 student_2022_full <- readRDS("../Data/student_2022.rds")
 load("../data/countrycode.rda")
 load("../data/student.rda")
+load("../data/student_all.rda")
 load("../data/student_data_2018_2022.rda")
 load("../data/math_diff_conf_intervals.rda")
 load("../data/read_diff_conf_intervals.rda")
@@ -49,51 +48,56 @@ load("../data/father_qual_math_read_sci_data.rda")
 load("../data/mother_qual_math_read_sci_data.rda")
 load("../data/int_math_read_sci_data.rda")
 load("../data/comp_math_read_sci_data.rda")
+load("../data/all_bs_cf.rda")
 
 student_country <- left_join(student_2022_full,
                              countrycode, by = "country")
 ```
 # Abstract
 
-A powerful tool for exploring and analysing data from the 2000–2022 Programme for International Student Assessment (PISA), which is led by the Organisation for Economic Co-operation and Development (OECD), is the learningtower R package. Reading, math, and science ability among 15-year-old pupils is measured as part of the triennial PISA international research, which assesses educational systems around the world. This thorough evaluation shows the efficacy of various educational policies and methods across countries in addition to offering insights on student accomplishment.
+The ['learningtower'](https://cran.r-project.org/web/packages/learningtower/index.html) R package, a powerful tool for exploring and analysing data from the 2000–2022 Programme for International Student Assessment ([PISA](https://www.oecd.org/pisa/)), which is led by the [Organisation for Economic Co-operation and Development (OECD)](https://www.oecd.org/about/). Reading, math, and science ability among 15-year-old pupils is measured as part of the triennial PISA international research, which assesses educational systems around the world. This thorough evaluation shows the efficacy of various educational policies and methods across countries in addition to offering insights on student accomplishment.
 
-With a suite of tools that improve data curation, visualisation, and statistical modelling, the learningtower package focusses on important areas of educational research, including gender inequities, socioeconomic impacts, and temporal trends in student performance. Learningtower makes it easier for academics, decision-makers, and educators to access and manipulate PISA data, allowing them to perform comprehensive analyses that support evidence-based decision-making.
+The package provides a suite of tools that streamline data curation, visualization, and statistical modeling, empowering researchers to investigate crucial areas of educational research. These include gender disparities, socioeconomic impacts on student performance, and trends over time. Learningtower's user-friendly interface allows academics, policymakers, and educators to readily access and analyze PISA data, enabling them to conduct comprehensive research that informs evidence-based decision-making in education.
 
-The learningtower package's intuitive design and features enable users to find important information about the performance of education around the world, emphasising injustices and differences between nations. Learningtower plays a critical role in promoting educated conversations on educational results and equity by making PISA data easier to access and handle. This, in turn, helps to improve educational practices and policies globally.
+However, the package has certain limitations, such as potential data size constraints, inconsistencies in questionnaire design across PISA cycles, and missing data in certain years and countries. Additionally, the exclusion of recent assessments and student data on attitudes, well-being, and learning experiences might limit a more comprehensive view of student performance.
 
-# Background
+Despite these limitations, the learningtower package remains a valuable tool for educational research. It provides a comprehensive dataset, facilitates cross-country comparisons and longitudinal studies, and enables the exploration of factors influencing student achievement. The package promotes open and repeatable research, fostering collaboration and enhancing the validity of educational analyses. By continuing to be updated with new PISA data and addressing limitations, the learningtower package will remain a crucial resource for understanding and improving global education systems.
 
-With its emphasis on school and student-level data, the learningtower R package is an extensive resource that offers crucial insights into a range of educational measures, such as socioeconomic backgrounds, performance indicators, and the accessibility of educational resources. A multitude of datasets from worldwide examinations, including the Programme for worldwide Student Assessment (PISA) before 2022, which assess students' proficiency in a variety of disciplines globally, are included in this bundle.
 
-To guarantee correctness and dependability, learningtower's datasets go through a rigorous cleaning and standardisation procedure. This entails a number of adjustments, including computing important metrics like the student-teacher ratio and aligning variables for uniformity. Making these changes is essential to improving the dataset's usability and preparing it for in-depth study.
 
-Student accomplishments in foundational subjects like science, math, and reading are among the main performance indicators that the learningtower package records. Furthermore, the databases include crucial data on national and school identities as well as the accessibility of educational resources, which may include elements like staffing levels and school size. These indicators offer a framework for assessing how many factors affect academic performance and resource allocation, and they are crucial for comprehending the educational landscape.
+# Introduction and background
 
-The learningtower package helps academics and policymakers identify inequalities in educational systems by making it easier to analyse regional and worldwide trends in educational results. These analyses provide insight into the different elements affecting the allocation of resources, the effectiveness of instruction, and eventually, student achievement. Learningtower's all-encompassing strategy seeks to advance evidence-based tactics for raising educational quality and equity while deepening our understanding of educational dynamics.
 
-# Introduction
+### PISA
 
-With a focus on the Programme for International Student Assessment (PISA) data from 2000 to 2022, the learningtower package is a strong and adaptable tool for evaluating educational data globally. The Organisation for Economic Co-operation and Development (OECD) administers PISA every three years to assess 15-year-old pupils' competency in important academic subjects like science, arithmetic, and reading. This test is intended to gauge how well students can apply their knowledge and abilities to practical issues, offering important information about how ready they are for adulthood and further education. Countries can track changes in their educational systems over time and evaluate the efficacy of their policies and practices by assessing students' proficiency in these fundamental disciplines.
+The OECD is a global organization that aims to create better policies for better lives. Its mission is to create policies that promote prosperity, equality, opportunity, and well-being for all[@oecd]. PISA is one of OECD's programme for International Student Assessment. PISA assesses 15-year-old students' potential to apply their knowledge and abilities in reading, mathematics, and science to real-world challenges. OECD launched this programme in 1997, it was initially administered in 2000, since the year 2000, it has involved [more than 100 countries and economies and has conducted tests of more than 3.7 million students worldwide](https://www.oecd.org/pisa/aboutpisa/pisa-participants.html).[@pisa] The PISA study, conducted every three years, provides comparative statistics on 15-year-old students' performance in mathematics, reading, and science. 
 
-Although PISA data is accessible to the general public via the OECD website, researchers and analysts may encounter considerable difficulties due to the datasets' intricate structure and variety of forms. Effective analysis may be hampered by these intricacies, making it challenging to glean significant insights from the abundance of available data. By combining extensive datasets covering teacher-student ratios, school resources, student performance measures, and important socioeconomic aspects, the learningtower package tackles these issues head-on. Learningtower enables comprehensive cross-sectional and longitudinal research through a methodical process of data cleansing, standardisation, and preparation, making it easy for users to traverse the complexities of educational data.
+### Learningtower Package
 
-Moreover, the recent addition of the 2022 dataset enhances the package's relevance and utility, providing the most current information on global educational trends. This update allows for thorough cross-national comparisons and assessments, enabling researchers and policymakers to identify patterns and correlations that impact student outcomes. By exploring the relationships between educational resources, teaching methodologies, and student performance, the learningtower package empowers users to draw informed conclusions and develop evidence-based strategies aimed at improving educational equity and effectiveness across diverse contexts.
+While the full PISA data is available on the website, it is not readily accessible by user due to downloading and curating data across multiple years of the PISA study could be a time consuming task. 
+Thus the ['learningtower'](https://cran.r-project.org/web/packages/learningtower/index.html) package was developed by Wang et. al. 2021 to provide quick access to a variety of variables in the OECD PISA data collected over a three-year period from 2000 to 2022 [@learningtower]. This dataset includes information on the PISA test scores in mathematics, reading, and science. Furthermore, these datasets include information on other socioeconomic aspects, as well as information on their school and its facilities, as well as the nations participating in the program.
 
-In conclusion, the learningtower package is an invaluable tool for educators and policymakers who want to comprehend and address the global variables driving student accomplishment, in addition to being a vital resource for education researchers.
+The learningtower package primarily comprised of three datasets: `student`, `school`, and `countrycode.` The `student` dataset includes results from triennial testing of 15-year-old students throughout the world. This dataset also includes information about their parents' education, family wealth, gender, and presence of computers, internet, vehicles, books, rooms, desks, and other comparable factors. Due to the size limitation on CRAN packages, only a subset of the student data is integrated in the downloaded [package,](https://kevinwang09.github.io/learningtower/) with the full data also downloadable using the `load_student("all)` function. These subsets of the student data, known as the `student_subset_yyyy` (`yyyy` being the specific year of the study) allow uses to quickly load, visualise the trends in the contained data. The `school` dataset includes school weight as well as other information such as school funding distribution, whether the school is private or public, enrollment of boys and girls, school size, and similar other characteristics of interest of different schools these 15-year-olds attend around the world. The `countrycode` dataset includes a mapping of a country/region's ISO code to its full name.
 
-## PISA
 
-The Organization for Economic Cooperation and Development [OECD](https://www.oecd.org/about/) is a global organization that aims to create better policies for better lives. Its mission is to create policies that promote prosperity, equality, opportunity, and well-being for all. [@oecd] [PISA](https://www.oecd.org/pisa/) is one of OECD's Programme for International Student Assessment. PISA assesses 15-year-old students' potential to apply their knowledge and abilities in reading, mathematics, and science to real-world challenges. OECD launched this in 1997, it was initially administered in 2000, since the year 2000, it has involved more than 100 countries and economies and has conducted tests of more than 3.7 million students worldwide.(https://www.oecd.org/pisa/aboutpisa/pisa-participants.html).[@pisa] The PISA study, conducted every three years, provides comparative statistics on 15-year-old students' performance in reading, math, and science. This report describes how to utilize the `learningtower` package, which offers OECD PISA datasets from 2000 to 2022 in an easy-to-use format. The datasets comprise information on students' test results and other socioeconomic factors, as well as information on their schools, infrastructure and the countries participating in the program.
+As mentioned ealier, although PISA data is accessible to the general public via the OECD website, researchers and analysts may encounter considerable difficulties due to the datasets' intricate structure and variety of forms. Effective analysis may be hampered by these intricacies, making it challenging to glean significant insights from the abundance of available data. By combining extensive datasets, the learningtower package tackles these issues head-on. Learningtower package enables comprehensive cross-sectional and longitudinal research through a methodical process of data cleansing, standardisation, and preparation, making it easy for users to traverse the complexities of educational data.
 
-## Learningtower Package
+Moreover, the addition of the 2022 dataset enhances the package's relevance and utility, providing the most current information on global educational trends. This update allows for thorough cross-national comparisons and assessments, enabling researchers and policymakers to identify patterns and correlations that impact student outcomes. By exploring the relationships between educational resources, teaching methodologies, and student performance, the learningtower package empowers users to draw informed conclusions and develop evidence-based strategies aimed at improving educational equity and effectiveness across diverse contexts.
 
-['learningtower'](https://cran.r-project.org/web/packages/learningtower/index.html) The R package [@learningtower] provides quick access to a variety of variables in the OECD PISA data collected over a three-year period from 2000 to 2022. This dataset includes information on the PISA test scores in mathematics, reading, and science. Furthermore, these datasets include information on other socioeconomic aspects, as well as information on their school and its facilities, as well as the nations participating in the program.
+### Communication and Documentation Tools
 
-The `learningtower` package primarily comprised of three datasets: `student`, `school`, and `countrycode.` The `student` dataset includes results from triennial testing of 15-year-old students throughout the world. This dataset also includes information about their parents' education, family wealth, gender, and presence of computers, internet, vehicles, books, rooms, desks, and other comparable factors. Due to the size limitation on CRAN packages, only a subset of the student data can be made available in the downloaded package. These subsets of the student data, known as the `student_subset_yyyy` (`yyyy` being the specific year of the study) allow uses to quickly load, visualise the trends in the full data. The full student dataset can be downloaded using the `load_student()` function included in this [package.](https://kevinwang09.github.io/learningtower/) The `school` dataset includes school weight as well as other information such as school funding distribution, whether the school is private or public, enrollment of boys and girls, school size, and similar other characteristics of interest of different schools these 15-year-olds attend around the world. The `countrycode` dataset includes a mapping of a country/region's ISO code to its full name.
+Slack and Notion can be effectively utilized together to enhance team communication and documentation management. Slack serves as a real-time communication tool, allowing teams to quickly exchange information, discuss projects, and stay updated on tasks, making it ideal for team collaboration.
+
+Notion, on the other hand, excels as a centralized workspace for recording and organizing important documents, such as meeting journals, project notes, and other key materials, ensuring that important information is organized and easily accessible.
+
+By using Slack for dynamic conversations and Notion for structured documentation, teams can ensure seamless communication while maintaining an organized record of all important documents, meeting notes, and long-term planning.
+
+
 
 # Goals
 
-The motivation for developing the `learningtower` package was sparked by the announcement of the PISA 2018 results, which caused a collective wringing of hands in the Australian press, with headlines such as ["Vital Signs: Australia's slipping student scores will lead to greater income inequality"](https://theconversation.com/vital-signs-australias-slipping-student-scores-will-lead-to-greater-income-inequality-128301) and ["In China, Nicholas studied math 20 hours a week. In Australia, it's three"](https://www.smh.com.au/education/in-china-nicholas-studied-maths-20-hours-a-week-in-australia-it-s-three-20191203-p53ggv.html). That's when several academics from Australia, New Zealand, and Indonesia decided to make things easier by providing easy access to PISA scores as part of the [ROpenSci OzUnconf](https://ozunconf19.ropensci.org/), which was held in Sydney from December 11 to 13, 2019.
+The motivation for developing the learningtower package was sparked by the announcement of the PISA 2018 results, which caused a collective wringing of hands in the Australian press, with headlines such as ["Vital Signs: Australia's slipping student scores will lead to greater income inequality"](https://theconversation.com/vital-signs-australias-slipping-student-scores-will-lead-to-greater-income-inequality-128301) and ["In China, Nicholas studied math 20 hours a week. In Australia, it's three"](https://www.smh.com.au/education/in-china-nicholas-studied-maths-20-hours-a-week-in-australia-it-s-three-20191203-p53ggv.html). That's when several academics from Australia, New Zealand, and Indonesia decided to make things easier by providing easy access to PISA scores as part of the [ROpenSci OzUnconf](https://ozunconf19.ropensci.org/), which was held in Sydney from December 11 to 13, 2019.
+
 
 Specific Goals related to the Learningtower package
 
@@ -113,59 +117,51 @@ Specific Goals related to the Learningtower package
 
 By achieving these objectives, the learningtower package hopes to become a vital tool for educational research, advancing evidence-based perspectives on global trends in education and aiding initiatives to promote fair educational opportunities across the globe.
 
+With a focus on PISA data from 2000 to 2022, the learningtower package is a strong and adaptable tool for evaluating educational data globally. Hence this report is aim to be an example of how to utilize to answer some research questions by applying various methodologies and statistical computations on the learningtower datasets.
+
+We will mainly utilize the 2022 PISA data and scores for illustrative purposes throughout the analysis section. We decided to answer a few intriguing questions on the PISA data and see if we could identify any interesting trends or insights utilizing this dataset. Some of these questions include if there is any significant gender difference between girls and boys and explore their performance in the areas of mathematics, reading, and science. Furthermore, we will inspect the various socioeconomic characteristics reflected in the student data and investigate if they have any substantial impact on the scores of these 15-year-olds. Furthermore We will delve into few highlight countries' score history and study the pandemic effects on students' academic performance to uncover some noteworthy trends, additionally, we will revisit the gender disparities across the years to see if the gap has narrowed over time.
+
 # Methodology
 
-The learningtower R program was developed through a series of methodical procedures, including data collection, processing, variable consistency checks, and analysis, for the study of PISA data from 2000 to 2022. Each phase was meant to ensure that the data remains robust, consistent, and available for educational research and comparative studies.
+The learningtower R program was developed through a series of methodical procedures, including data collection, processing, variable consistency checks, and analysis, for the study of PISA data from 2000 to nowadays. Each phase was meant to ensure that the data remains robust, consistent, and available for educational research and comparative studies.
 
 1. Data Acquisition and Import
 
-a. Data Download: The most recent PISA datasets, which included student and school data from several nations, were downloaded in SAS or SPSS formats from the OECD website
+    A. Data Download: The most recent PISA datasets, which included student and school data from several nations, were downloaded in SAS or SPSS formats from the OECD website
 
-b. Data Loading in R: Following the download, the data was loaded into the R environment using scripts that made managing big SPSS/SAS files easier and guaranteed R compatibility.
+    B. Data Loading in R: Following the download, the data was loaded into the R environment using scripts with the help of `haven` package[@haven] that made managing big SPSS/SAS files easier and guaranteed R compatibility.
 
 2. Data Cleaning and Transformation
 
-a. Initial Cleaning: To eliminate discrepancies, including missing or incorrect entries, and to reformat categorical variables for standardisation, data wrangling programs were used. The data was prepared for additional processing thanks to this first cleaning.
+    A. Initial Cleaning: To eliminate discrepancies, including missing or incorrect entries, and to reformat categorical variables for standardisation, data wrangling programs were used. The data was prepared for additional processing thanks to this first cleaning.
+  
+   B. Variable Recategorisation: To ensure uniformity between PISA years, variables of interest were reclassified where needed.
 
-b. Variable Recategorisation: To ensure uniformity between PISA years, variables of interest were reclassified where needed.
-
-c. Taking care of Missing Variables: The 2022 dataset lacked some variables, including "possession of desk." These variables were either explicitly selected as character variables or, when appropriate, substituted with comparable indications in order to address this.
+    C. Taking care of Missing Variables: The 2022 dataset lacked some variables, including "possession of desk." These variables were either explicitly selected as character variables or, when appropriate, substituted with comparable indications in order to address this.
 
 3. Ensuring Variable Consistency
 
-a. Cross-Year Alignment: Maintaining the consistency of important variables between PISA assessment years was a significant methodological difficulty. Some variables, such as the WEALTH index, were absent from newer datasets due to changes in questionnaire design. To retain a measure of socioeconomic level in these situations, other variables such as ESCS (Economic, Social, and Cultural level) were employed.
+    A. Cross-Year Alignment: Maintaining the consistency of important variables between PISA assessment years was a significant methodological difficulty. Some variables, such as the WEALTH index, were absent from newer datasets due to changes in questionnaire design. To retain a measure of socioeconomic level in these situations, other variables such as ESCS (Economic, Social, and Cultural level) were employed.
 
-b. Categorisation Adjustments: To guarantee consistency in analysis, the classification for parental education levels, household belongings, and technological access was standardised across datasets.
+    B. Categorisation Adjustments: To guarantee consistency in analysis, the classification for parental education levels, household belongings, and technological access was standardised across datasets.
 
 4. Data Transformation and Storage
 
-a. Data Transformation: The processed data was transformed and saved as.rds files after being cleaned and having its consistency checked. The cleaned and categorised datasets are stored in these RDS files, which are small and easy to load quickly in R.
+   A. Data Transformation: The processed data was transformed and saved as.rds files after being cleaned and having its consistency checked. The cleaned and categorised datasets are stored in these RDS files, which are small and easy to load quickly in R.
 
-b. File Organisation by Year: To assist cross-sectional research within each year and to enable longitudinal analysis across years, each PISA dataset was saved independently. This method guarantees that the data by year may be readily accessed by researchers without the need for extra processing.
+    B. File Organisation by Year: To assist cross-sectional research within each year and to enable longitudinal analysis across years, each PISA dataset was saved independently. This method guarantees that the data by year may be readily accessed by researchers without the need for extra processing.
+  
+    C. File Storage: The final RDS file for each PISA year were then thoroughly vetted and made available in a separate [GitHub repository](https://github.com/kevinwang09/learningtower_masonry).
 
 5. Validation and Quality Checks
-Each dataset was examined for accuracy and completeness following processing. Particularly for new or altered variables, the integrity of socioeconomic indicators and the coherence of variable definitions were verified twice.
+
+  Each dataset was examined for accuracy and completeness following processing. Particularly for new or altered variables, the integrity of socioeconomic indicators and the coherence of variable definitions were verified twice.
 
 6. Data Analysis Techniques
 
-a. Bootstrap Sampling: For confidence intervals in analyses like gender gaps, socioeconomic effect, and longitudinal trends, bootstrap sampling was used to produce reliable results.
-
-b. The dataset is appropriate for both cross-sectional and longitudinal educational research since methods were used to investigate trends in gender disparities, socioeconomic factors, and the influence of variables across time.
-
-Learningtower's high-quality, consistent, and easily accessible PISA data is guaranteed by this methodical approach, which makes thorough analysis and policy-oriented educational research possible.
+  Bootstrap sampling was employed to create robust confidence intervals for analyses on gender gaps, socioeconomic effects, and longitudinal trends, ensuring reliable estimates. The dataset supports both cross-sectional and longitudinal educational research, enabling in-depth exploration of trends in gender disparities, socioeconomic factors, and the impact of various variables over time.
 
 
-# Compiling the data(more details about the process and problems faced)
-
-We are responsible for the curation of the newest PISA study, year 2022. data on the participating students and schools were first downloaded from the PISA website, in either SPSS or SAS format. The data were read into an R environment. After some data cleaning and wrangling with the appropriate script, the variables of interest were re-categorised and saved as RDS files. One major challenge faced by the us was to ensure the consistency of variables over the years. However, several variables may be missing due to the reconstruction of questionnaires. For instance, a question regarding student's possession of desk is not recorded in 2022, but it was included in previous questionnaires, hence these variables were manually curated as an character variable in the output data. Another important issue we faced is a missing variable `WEALTH`, this variable used to be a good measurement of a student's socioeconomic status. But we also discovered a variable called `ESCS` (economic, social and cultural status). These final RDS file for each PISA year were then thoroughly vetted and made available in a separate [GitHub repository](https://github.com/kevinwang09/learningtower_masonry).
-
-# Communication and Documentation Tools
-
-Slack and Notion can be effectively utilized together to enhance team communication and documentation management. Slack serves as a real-time communication tool, allowing teams to quickly exchange information, discuss projects, and stay updated on tasks, making it ideal for team collaboration.
-
-Notion, on the other hand, excels as a centralized workspace for recording and organizing important documents, such as meeting journals, project notes, and other key materials, ensuring that important information is organized and easily accessible.
-
-By using Slack for dynamic conversations and Notion for structured documentation, teams can ensure seamless communication while maintaining an organized record of all important documents, meeting notes, and long-term planning.
 
 # Overview of the data
 
@@ -458,6 +454,8 @@ Even though the map visualization embeds the same scores as @fig-worldmaps, one 
 
 Socioeconomic status is an economic and sociological complete measure of a person's work experience, economic access to resources, and social standing in relation to others. Do these socioeconomic factors influence students' academic performance? In this section, we will investigate if different socioeconomic factors owned by a family have a significant impact on a student's academic performance. The student dataset in the `learningtower` package contains scores of 15-year-olds from triennial testing across the world. This dataset also includes information about their parents' education, family wealth, gender, and ownership of computers, internet, cars, books, rooms, desks, and dishwashers. Next, we will mainly explore some fascinating aspects of the influence of a few socioeconomic factors on student performance in math, reading, and science. Let us further explore the impact of a selection of socioeconomic factors on the students' score.
 
+### Parent's education 
+
 Parents qualification is a vital element of childhood development. As previously stated, the student dataset in the package includes information regarding the parents qualification. In this section, we will investigate if both the mother's and father's qualifications have a significant impact on their child's performance. The mother's education and father's education variables are originally recorded in the student dataset in the `learningtower` package at distinct International Standard Classification of Education (ISCED) levels which are less than ISCED1 equivalent to ISCED 0, ISCED 1, ISCED 2, ISCED 3A and ISCED 3B, C, where:
 
 -   level 0 indicates pre-primary education or no education at all
@@ -555,8 +553,9 @@ father_qual_math + mother_qual_math
 ```
 The @fig-qualplot depicts the impact of mothers' and fathers' qualifications on students academic performance. The @fig-qualplot allows us to deduce a very important and remarkable insight in which we see a constant increase in the students' academic performance when both mother and father qualifications shift towards higher levels of education. The bold horizontal black lines that we see in each category for mother's and father's qualification here represent median score for that qualification category across countries. As the parent attains higher qualifications, we notice an increasing trend in these medians for each category. Taking a closer look at the @fig-qualplot, we can see that there is a considerable boost in scores when both the mother and father have upper secondary education. Furthermore, the `geom_quasirandom()` function in the `ggbeeswarm` [@ggbeeswarm] package makes this plot more accessible and understandable by providing a way to offset points inside categories to prevent overplotting. Thus, we can clearly see that both the mother's and father's qualifications has a significant influence on the student's academic performance, with the more educated the parent more likely to have their child academically performing better.
 
+### Technology Assisstance
 
-Students are becoming more active and adept learners as technologies like computers and internet mature and becoming more commonplace over the past twenty years. We will investigate if having a computer with internet access at the age of 15 has a positive or negative impact on student academic achievement. We will plot the average math results of the several nations that participated in the PISA experiment in 2022 to determine the effect of owning a computer and having access to the internet. We first create `data.frame` that is grouped by the nations and the frequency of whether the student possesses a computer or not, as well as a students' access to the internet or not. We will plot this result against the weighted average mathematical score to determine the influence of various of television and internet on the student academic performance using the several functions available in the `ggplot2`[@ggplot2] package.
+Students are becoming more active and adept learners as technologies like computers and internet mature and becoming more commonplace over the past twenty years. We will investigate if having a computer with internet access at the age of 15 has a positive or negative impact on student academic achievement. We will plot the average math results of the several nations that participated in the PISA experiment in 2022 to determine the effect of owning a computer and having access to the internet. We first create `data.frame` that is grouped by the nations and the frequency of whether the student possesses a computer or not, as well as a students' access to the internet or not. We will plot this result against the weighted average mathematical score to determine the influence of various of television and internet on the student academic performance using the several functions available in the `ggplot2`[@ggplot2] package and `patchwork` [@patchwork] packages in R.
 ```{r}
 int_math_read_sci_data <- student_country %>%
   group_by(country_name, internet) %>%
@@ -608,8 +607,8 @@ computer_plot + internet_plot
 ```
 In the @fig-compintplot, we see that students who own a computer and have access to the internet consistently outperform students who do not own a computer or have access to the internet at all. No country has exempted from this finding. Thus, on average, a 15-year-old student's access to a computer and the internet is unquestionably has significant positive influence on their academic performance. While the increase in academic performance is expected, but the magnitude of this increase and the associated educational benefits may be used by policymakers to improve their own domestic access to these technologies.
 
-Followed on previous discussion, computer has became an essential in learning experience. In this segment of the article, we investigate the influence of number of computers by countries/regions, as well as whether this technology has a significant impact on students' academic performance. The computer variables that are recorded in the student dataset is a factor variable that records whether or not the students participating in this study have a computer and, if they do, the quantity of computers per family is recorded via the PISA survey. Especially, in 2022 dataset, the survey also included the laptop variable. The computer and laptop variables are initially recorded has four levels: "No computer/laptop", "1 computer/laptop", "2 computers/laptops", or "3+ computer/laptops", respectively. 
-Because we are interested in researching the impact of these computers and laptops on the students' scores, we visualized the confidence intervals for each of these levels in order to determine the uncertainty of the results at each level. We begin with initially creating a `data.frame` that is grouped by country and the number of computers and laptops per household for each country. Next we fit a linear model between the math average with computer and laptops in the 2022 PISA data and finally plot the impact for all countries sorted as per the slope with the help of the functions available in the `ggplot2` [@ggplot2] package.
+Followed on previous discussion, computer has became an essential in learning experience. In this segment, we investigate the influence of number of computers by countries/regions, as well as whether this technology has a significant impact on students' academic performance. The computer variables that are recorded in the student dataset is a factor variable that records whether or not the students participating in this study have a computer and, if they do, the quantity of computers per family is recorded via the PISA survey. Especially, in 2022 dataset, the survey also included the laptop variable. The computer and laptop variables are initially recorded has four levels: "No computer/laptop", "1 computer/laptop", "2 computers/laptops", or "3+ computer/laptops", respectively. 
+Because we are interested in researching the impact of these computers and laptops on the students' scores, we visualized the confidence intervals for each of these levels in order to determine the uncertainty of the results at each level. We begin with initially creating a `data.frame` that is grouped by country and the number of computers and laptops per household for each country. Next we fit a linear model between the math average with computer and laptops in the 2022 PISA data and finally plot the impact for all countries sorted as per the slope with the help of the functions available in the `ggplot2` [@ggplot2] package and `patchwork` [@patchwork] packages in R.
 
 ```{r}
 z_star_95 <- qnorm(0.975)
@@ -726,7 +725,7 @@ lap_plot <- lap_math_data %>%
 #| out-width: "100%"
 com_plot + lap_plot
 ```
-In the @fig-comlap, we can see highly striking patterns as well as a significant influence of television on students' academic performance. We have arranged the nations in the @fig-comlap according to the slope of math average scores fitted against the different levels of computer/laptop described previously. 
+In the @fig-comlap, we can see highly striking patterns as well as a significant influence of computer/laptop on students' academic performance. We have arranged the nations in the @fig-comlap according to the slope of math average scores fitted against the different levels of computer/laptop described previously. 
 United Arab Emirates and Indonesia have a lower influence of computer on student performance, whereas Brazil and Vietnam have a rising tendency and therefore a larger impact of computer on students' performance. Furthermore, the confidence interval plotted in the figure @fig-comlap show that there is a lot of uncertainty in the level of scores when a household have more computers in the majority of the countries. 
 On the other hand, Cambodia and Georgia have a lower influence of laptop on student performance, whereas Slovakia and Hungary have a rising tendency and therefore a larger impact of laptops on students' performance. Taking a closer look we observe that when the slope of laptop increases in countries, compared to the slope of computer, the confidence interval of such countries becomes narrower. Hence laptop could have more potential educational benefit compared to computer. It's quite interesting because the similar nature of computer and laptop, we would assume the effect of these two assets should be similar, yet the @fig-comlap has not only shown a different result. 
 Nevertheless, having multiple computers and laptops may turn out to be having negative influence on student's performance in most of the countries, excessive access could lead to distractions or excessive screen time, which can negatively impact performance.
@@ -738,86 +737,10 @@ The 2022 PISA results offer a unique opportunity to analyze the impact of the CO
 ### Pandemic effects
 To better comprehend pandemic effect on student's academic performance, We illustrate the temporal trend of Australia in comparison to a few other nations. We evaluate these countries performance using a statistical procedure bootstrapping using the `map_dfr` function which re-samples a single dataset to generate a large number of simulated samples. We will compare the results of these bootstrap samples across all the years they participated in PISA.
 
-```{r}
-# Set the working directory
-setwd("/Users/shabarish/Desktop/Project/Learningtower_Rpackage") #Set your own working directory
-
-# Load student data, and filter to country, cache a copy of the data
-# to save downloading every time paper is knitted
-
-if (!file.exists("data/student_all.rda")) {
-    student_all <- load_student("all")
-
-    # Check if student_all was created successfully
-    if (!exists("student_all")) {
-        stop("Error: student_all object was not created.")
-    }
-
-    # Attempt to save the data
-    save(student_all, file = "data/student_all.rda")
-} else {
-    load("data/student_all.rda")
-}
-
-# Proceed with the data manipulation
-student_country_all <- left_join(student_all, countrycode, by = "country") %>%
-    dplyr::filter(country_name %in%
-        c("Australia", "Germany", "Peru", "Qatar", "Belgium",
-          "Brazil", "Denmark", "Greece", "Thailand", "Singapore",
-          "Canada", "Portugal")) %>%
-    dplyr::select(year, country_name, math, read, science, stu_wgt) %>%
-    na.omit() %>%
-    pivot_longer(c(math, read, science), names_to = "subject", values_to = "score")
-
-# Compute the bootstrap confidence intervals, and cache result
-if (!file.exists("data/all_bs_cf.rda")) {
-  all_bootstrap <- map_dfr(1:100, ~{
-    student_country_all %>%
-    group_by(country_name, #year,
-             subject) %>%
-    #sample_n(size = n(), replace = TRUE) %>%
-    mutate(year = sample(year, replace=FALSE)) %>%
-    group_by(country_name, year,
-             subject) %>%
-    dplyr::summarise(
-      avg = weighted.mean(score, w = stu_wgt, na.rm = TRUE), .groups = "drop") %>%
-    #ungroup() %>%
-    mutate(boot_id = .x)
-  })
-
-  all_bootstrap_ci <- all_bootstrap %>%
-    group_by(country_name, year,
-             subject) %>%
-    summarise(
-      lower = min(avg), # sort(avg)[5],
-      upper = max(avg), #sort(avg)[95],
-      .groups = "drop")
-
-  # compute original estimate of average and join
-  all_avg <- student_country_all %>%
-    group_by(country_name, year, subject) %>%
-    summarise(
-      avg = weighted.mean(score,
-                          w = stu_wgt, na.rm = TRUE),
-      .groups = "drop")
-
-  all_bs_cf <- left_join(all_avg,
-                         all_bootstrap_ci,
-                         by = c("country_name",
-                             "year",
-                             "subject"))
-
-  save(all_bs_cf, file= here("data/all_bs_cf.rda"))
-
-} else {
-  load(here("data/all_bs_cf.rda"))
-}
-
-```
 
 ```{r}
 #| label: fig-bsplot
-#| fig-cap: "Temporal patterns in math, reading, and science in a variety of countries. The highlighted countries in the chart help us infer Australia's performance in contrast to the other countries; we can see that Australia's scores have always been among the highest in the PISA survey throughout all years."
+#| fig-cap: "Temporal patterns in math, reading, and science in a variety of countries. In this plot we could observe that there is a noticeable decline in scores in mathematics, with Singapore as an exception, showing improvement. Reading scores also decline in most countries, though Qatar and Peru exhibit an upward trend. For science, scores remain relatively stable, with no clear overall decline, as most countries maintain previous performance levels."
 #| fig-width: 12
 #| fig-height: 12
 #| fig-pos: "H"
@@ -854,7 +777,6 @@ math_all_bs_cf_plot <- all_bs_cf %>%
              colour = country_name)) +
   geom_point(alpha = 0.45) +
   geom_line(aes(group = country_name)) +
-  #gghighlight::gghighlight(country_name %in% country_names_highlight) +
   labs(
     title = "Maths",
      x = "",
@@ -870,7 +792,6 @@ read_all_bs_cf_plot <- all_bs_cf %>%
              colour = country_name)) +
   geom_point(alpha = 0.45) +
   geom_line(aes(group = country_name)) +
-  #gghighlight::gghighlight(country_name %in% country_names_highlight) +
   labs(
     title = "Reading",
      x = "",
@@ -894,29 +815,33 @@ sci_all_bs_cf_plot <- all_bs_cf %>%
 
 math_all_bs_cf_plot + read_all_bs_cf_plot + sci_all_bs_cf_plot
 ```
-Taking a deeper look at the figure @fig-bsplot, we notice the changing scales of their scores in all three plots of math, reading, and science and we could observe that there's a obvious decline in mathematics score across countries, only Singapore still demonstrate increase in scores; same in reading most countries have decline, yet only Qatar and Peru have shown improvement. As for science, there's no clear drop in score, most countries have maintained in the same level as previous years.
-
-
-
-
+Taking a deeper look at the @fig-bsplot, we notice the changing scales of their scores in all three plots of math, reading, and science and we could observe that there's a obvious decline in mathematics score across countries, only Singapore still demonstrate increase in scores; same in reading most countries have decline, yet only Qatar and Peru have shown improvement. As for science, there's no clear drop in score, most countries have maintained in the same level as previous years.
+The extent of the academic losses in each country is varied depending on various factors. The consequence of the learning losses because of the Covid-19 school closures may extend beyond the academic realm. This loss of human capital will have enduring economic implications on not only the students themselves but also on their countries, constraining the country's productivity, economic output as well as the growth and development.  As some educationist have raised their concern that [a crisis in education is has arrived, and low-achieving students are being disproportionately affected](https://fordhaminstitute.org/national/commentary/how-pandemic-affected-global-education-insights-pisa), when these students enter the labor market, their earnings will be lower than would have been the case in the absence of the learning losses. Hence, the policymaker around the world have to make well designed strategies to mitigate the damage done by the pandemic so that our current and future generations would not suffer from this learning loss also prevent such rare black swan event from happening again if there's another pandemic hit the globe.
 
 ### Gender Gaps Across Subjects and Years
 
+In this section, We aim to examine the temporal trend in the gender gap across three core subjects. Our goal is to determine if the gap has narrowed over time, following up on previous analyses. We calculated the weighted means by gender for each subject, grouped by country and year, and filters for complete cases. We then compute gender gaps for each subject and visualize the trends over time, using `ggplot2`[@ggplot2] and `brolgar`[@brolgar] to display the shifts in these gaps across countries and years.
+
+
 ```{r}
-#| fig-width: 18
+#| label: fig-tempdiff
+#| fig-cap: "The chart above depicts the average scores of gender gap difference in 15-year-olds’ in math, reading, and science results. The gaps of math and science fluctuate around zero, indicating stability over time, the reading gap consistently favors females and remains relatively stable. This suggests that although the gender gap in math and science has not significantly changed, the persistent advantage in reading for females is evident across the years."
+#| fig-subcap: "Gender Gap Values = average male score - average female score"
+#| fig-width: 12
 #| fig-height: 12
-#| echo: false
+#| fig-pos: "H"
+#| out-width: "100%"
 
 #calculating the weighted means for all three subjects and plotting them
 w_mean = function(x, w){weighted.mean(x = x, w = w, na.rm=TRUE)}
 
 
-stu_gender_summ  <-  student %>% 
+stu_gender_summ  <-  student_all %>% 
   filter(complete.cases(gender)) %>% 
   group_by(year, country, gender) %>%
   summarise_at(.vars = vars(math, read, science), 
                .funs = list(wmean = ~w_mean(., w = stu_wgt))) %>% 
-  mutate(year = year %>% as.character() %>% as.integer) %>% 
+  mutate(year = year %>% as.character() %>% as.integer) %>%
   group_by(country) %>%
   filter(n() >= 10) %>% 
   ungroup() %>% 
@@ -924,14 +849,14 @@ stu_gender_summ  <-  student %>%
                names_to = "names",
                values_to = "values") %>% 
   pivot_wider(names_from = c("gender", "names"),
-              values_from = "values")
+              values_from = "values") 
 
 stu_ggap_summ  <-  stu_gender_summ %>% 
   dplyr::transmute(
     year, country,
-    gap_math_wmean = female_math_wmean - male_math_wmean,
-    gap_read_wmean = female_read_wmean - male_read_wmean,
-    gap_science_wmean = female_science_wmean - male_science_wmean)
+    gap_math_wmean = male_math_wmean - female_math_wmean,
+    gap_read_wmean = male_read_wmean - female_read_wmean,
+    gap_science_wmean = male_science_wmean - female_science_wmean)
 
 
 stu_ggap_summ_long  <-  stu_ggap_summ %>% 
@@ -945,48 +870,123 @@ stu_ggap_summ_long %>%
   geom_line(aes(group = country)) +
   geom_hline(yintercept = 0, colour = "red") +
   facet_wrap(~gap_names) +
-  labs(title = "Average gender gaps across subjects and years", 
-       subtitle = "Gap = avg. female score - avg. male score", 
-       x = "Year", 
+  labs(x = "Year", 
        y = "Gender Gap Values")
 ```
+From the @fig-tempdiff, we could observe that for math and science, the gender gaps appear relatively close to zero, with fluctuations over time but no consistent widening or narrowing trend across countries. In reading, however, a notable and consistent gap favors females, remaining relatively stable over time with some variation between countries. These results suggest that while the gender gap in math and science may not have significantly changed, the reading gap (female led) persists across years. 
 
-### Highlighting Key Countries
+Because gender disparities is different in each country and the changing nature of countries' participation of the PISA,  we want to investigate the changes within three assessments (2015, 2018 and 2022). By examining differences in focal subject's performance, we aim to identify whether gender disparities show consistent trends or fluctuate across years. Using data for each subject, we applied statistical functions to determine notable data points (such as the median and quartiles) and plotted these trends by country. With `ggplot2` [@ggplot2] package, `gghighlight` [@gghighlight], which used to highlight significant data points across countries, as well as `patchwork` [@patchwork] to create the visuals for a comprehensive view of each subject's temporal patterns.
+
 
 
 ```{r}
+#| label: fig-hltempdiff
+#| fig-cap: "Countries such as Colombia, Peru, and Costa Rica demonstrate the largest gender gaps in mathematics, reading, and science respectively, while Qatar consistently shows the least disparity. However, disparities in reading, where females often outperform males, remain significant in some regions. In traditionally male-dominated subjects like math and science, a gradual reduction in disparities indicates movement towards gender equality. However, in reading, where females typically outperform males, persistent gaps remain in certain regions."
+#| fig-subcap: "Gender Gap Values = average male score - average female score"
 #| fig-width: 12
-#| fig-height: 6
-#| echo: false
-stu_ggap_summ_nest  <-  stu_ggap_summ %>%
-  pivot_longer(contains("_wmean"),
-               names_to = "names",
-               values_to = "values") %>% 
-  group_by(names) %>% 
-  nest() %>% 
-  mutate(f_tbl = map(.x = data, 
-                     .f = ~ .x %>% 
-                       as_tsibble(key = country, index = year) %>% 
-                       features(values, feat_brolgar) %>% 
-                       keys_near(key = country, var = range2)),
-         f_data = map2(.x = data, .y = f_tbl, 
-                       .f = ~ left_join(.x, .y, by = "country")))
+#| fig-height: 12
+#| fig-pos: "H"
+#| out-width: "100%"
 
-stu_ggap_summ_plotdf  <-  stu_ggap_summ_nest %>% 
-  select(names, f_data) %>% 
-  unnest(f_data) %>% 
-  left_join(countrycode, by = "country") %>% 
+# Filter to include only countries with data for 2015, 2018, and 2022
+stu_gender_summ_sub <- stu_gender_summ |> 
+  group_by(country)  |> 
+  filter(all(c(2015, 2018, 2022) %in% year))  |> 
+  ungroup()
+
+stu_ggap_summ_sub  <-  stu_gender_summ_sub %>% 
+  dplyr::transmute(
+    year, country,
+    gap_math_wmean = male_math_wmean - female_math_wmean,
+    gap_read_wmean = male_read_wmean - female_read_wmean,
+    gap_science_wmean = male_science_wmean - female_science_wmean)
+
+
+stu_ggap_summ_long  <-  stu_ggap_summ_sub %>% 
+  pivot_longer(cols = contains("gap"),
+               names_to = "gap_names",
+               values_to = "gap_values")
+
+stu_gap_math_near <-  stu_ggap_summ_sub %>%
+  as_tsibble(key = country, index = year) %>% 
+  features(gap_math_wmean, feat_brolgar) %>%
+  keys_near(key = country, var = median)
+
+stu_gap_math_plotdf  <-  stu_ggap_summ_sub %>%
+  as_tibble() %>%
+  left_join(stu_gap_math_near, by = "country") %>%
+  left_join(countrycode, by = "country") %>%
   mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
 
-stu_ggap_summ_plotdf %>% 
-  ggplot(aes(x = year, y = values)) +
-  geom_line(aes(group = country, colour = country)) +
-  gghighlight(!is.na(stat), label_key = label_stats_country, calculate_per_facet = TRUE, keep_scales = TRUE) +
-  facet_wrap(~names) + 
-  labs(x = "Year",
-       y = "Values", 
-       title = "Highlighting key countries across all three subjects")
+math_tempdiff <- stu_gap_math_plotdf %>%
+  ggplot(aes(x = year,
+             y = gap_math_wmean,
+             group = country,
+             colour = stat)) +
+  geom_point() +
+  geom_line() +
+  gghighlight::gghighlight(!is.na(stat), label_key = label_stats_country) +
+  scale_x_continuous(breaks = c(2015, 2018, 2022),
+                     limits = c(2014, 2023)) + 
+  labs(title = "Math",
+       x = "Year", 
+       y = "Values")
+
+stu_gap_read_near <-  stu_ggap_summ_sub %>%
+  as_tsibble(key = country, index = year) %>% 
+  features(gap_read_wmean, feat_brolgar) %>%
+  keys_near(key = country, var = median)
+
+stu_gap_read_plotdf  <-  stu_ggap_summ_sub %>%
+  as_tibble() %>%
+  left_join(stu_gap_read_near, by = "country") %>%
+  left_join(countrycode, by = "country") %>%
+  mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
+
+read_tempdiff <- stu_gap_read_plotdf %>%
+  ggplot(aes(x = year,
+             y = gap_read_wmean,
+             colour = stat)) +
+  geom_point() +
+  geom_line() +
+  gghighlight::gghighlight(!is.na(stat), label_key = label_stats_country) +
+  scale_x_continuous(breaks = c(2015, 2018, 2022),
+                     limits = c(2014, 2023)) +
+  labs(title = "Read",
+       x = "Year", 
+       y = "")
+
+stu_gap_science_near <-  stu_ggap_summ_sub %>%
+  as_tsibble(key = country, index = year) %>% 
+  features(gap_science_wmean, feat_brolgar) %>%
+  keys_near(key = country, var = median)
+
+stu_gap_science_plotdf  <-  stu_ggap_summ_sub %>%
+  as_tibble() %>%
+  left_join(stu_gap_science_near, by = "country") %>%
+  left_join(countrycode, by = "country") %>%
+  mutate(label_stats_country = ifelse(is.na(stat), NA, paste0(stat, ":", country_name)))
+
+science_tempdiff <- stu_gap_science_plotdf %>%
+  ggplot(aes(x = year,
+             y = gap_science_wmean,
+             colour = stat)) +
+  geom_point() +
+  geom_line() +
+  gghighlight::gghighlight(!is.na(stat), label_key = label_stats_country) +
+  scale_x_continuous(breaks = c(2015, 2018, 2022),
+                     limits = c(2014, 2023)) + 
+  labs(title = "Science",
+       x = "Year", 
+       y = "")
+
+math_tempdiff + read_tempdiff + science_tempdiff 
 ```
+
+
+
+From the analysis depicted in @fig-hltempdiff, it is evident that countries such as Colombia, Peru, and Costa Rica demonstrate the largest gender gaps in mathematics, reading, and science respectively, while Qatar consistently shows the least disparity. The trend in gender disparities is not uniform globally; some countries exhibit progress in narrowing gaps, particularly in traditionally male-dominated subjects like mathematics and science, indicating a movement towards gender equality. However, disparities in reading, where females often outperform males, remain significant in some regions. In traditionally male-dominated subjects like math and science, a gradual reduction in disparities indicates movement towards gender equality. However, in reading, where females typically outperform males, persistent gaps remain in certain regions. 
+These findings underscore that educational gender inequalities are not uniformly distributed globally, with their presence and magnitude influenced by various socio-cultural, economic, and policy-related factors unique to each country. Thus, addressing gender disparities in education requires a tailored approach that considers the specific context and challenges of each nation.
 
 
 # Discussion
@@ -994,7 +994,7 @@ stu_ggap_summ_plotdf %>%
 ## Results
 The learningtower package's study of PISA data reveals important educational trends that affect student performance globally, particularly in the areas of gender, socioeconomic status, and technology access. Girls typically outperform boys in reading across all countries, according to the gender-based data, with particularly large gaps observed in Jordan, Palestine, and the United Arab Emirates. This pattern implies that although reading is typically thought of as a subject in which girls do best, this disparity may potentially be exacerbated by cultural and educational variables. Though some nations, like Sweden and Kazakhstan, exhibit near parity, suggesting potential success in implementing gender-neutral or inclusive educational approaches in maths, boys still often perform better than girls in maths. In contrast, gender variations in science scores are negligible in many regions, indicating that science instruction may inherently support more balanced performance between boys and girls.
 
-In every subject, socioeconomic considerations show up as important predictors of academic performance. Higher scores are typically attained by students with more educated parents and those from higher ESCS (Economic, Social, and Cultural Status) backgrounds. Learning is impacted by parental support, family wealth, and access to educational resources, as seen by the positive link found between socioeconomic resources and student performance. Additionally, having access to technology—such as home computers and internet connectivity—is substantially linked to better academic achievement; kids who have these resources often outperform those who do not. Performance differences are less in nations with higher levels of digital penetration, indicating that equal access to technology may be crucial in closing the achievement gap between kids from different socioeconomic backgrounds.
+In every subject, socioeconomic considerations show up as important predictors of academic performance. Higher scores are typically attained by students with more educated parents and those from higher ESCS (Economic, Social, and Cultural Status) backgrounds. Learning is impacted by parental support, family wealth, and access to educational resources, as seen by the positive link found between socioeconomic resources and student performance. Additionally, having access to technology—essentials as home computers and internet connectivity—is substantially linked to better academic achievement; kids who have these resources often outperform those who do not. Performance differences are less in nations with higher levels of digital penetration, indicating that equal access to technology may be crucial in closing the achievement gap between kids from different socioeconomic backgrounds.
 
 Student performance trends throughout time demonstrate the COVID-19 pandemic's effects, especially in mathematics, where 2022 scores fell in many nations. This pattern might be a reflection of the difficulties associated with distance learning and the scarcity of resources while schools are closed. On the other hand, science and reading scores were comparatively stable, with several nations—like Peru and Qatar—even seeing improvements in their reading proficiency. This resiliency in science and reading might indicate that these courses were better served by online resources or that students were better able to adjust to distance learning for these skills. The significance of flexible teaching strategies and infrastructure is emphasised by the temporal analysis, which can protect educational systems from interruptions and support the maintenance of uniform learning outcomes across disciplines.
 
@@ -1002,30 +1002,20 @@ The learningtower package's mapping and visualisation capabilities offer a thoro
 
 ## Limitations
 
-- Size limitation on CRAN packages: The data size would be bigger if keep uploading the newest data, so further curation process of data should be considered, or explore alternative data compression for the datasets.
-
-- Variables Consistency: The construction of questionnaire would be different every survey, as well as the coding mechanism of the original dataset, so curation process must be examined everytime to ensure the consistency of variables.
-
-- Handling of Missing Data: Some variables are missing or incomplete in certain years or countries. These missing data points can limit the analysis and reduce comparability accross regions or over time.
-
-- Dependency on External data formats: The package relies on data orginally available in SPSS or SAS formats from the OECD. Any changes in these formats, structures or access protocols on the OECD website could impact the package's ability to import and process the data accurately.
-
-- Potential Sampling Bias: Although PISA aims for representative samples, certain countries or regions may face challenges in collecting the data that fully reflects their population. This could introduce sampling bias.
+First, due to CRAN package size restrictions, incorporating the latest data may lead to excessive data sizes. Thus, a data curation strategy or compression technique should be explored to manage growing datasets efficiently. Second, inconsistencies arise because each survey may have unique questionnaire designs and variable coding systems, necessitating a thorough curation process each time to ensure variable consistency across different years. Third, missing or incomplete data in certain years and countries pose challenges, reducing the comparability of results across regions and time. Additionally, this analysis excludes recent assessments like Creative Thinking and Financial Literacy, which is optional for participant, as well as in student's questionnaire the expanded data on students' attitudes, well-being, and learning experiences. These exclusions would limit the ability to capture a more comprehensive view of student performance across broader dimensions, which may be significant for future analyses.
 
 # Conclusion
 
-The learningtower R package has been significantly improved with the addition of the 2022 PISA data, providing researchers, educators, and policymakers with a useful tool for examining and comprehending student performance and school characteristics worldwide. This most recent version guarantees a consistent and thorough dataset covering the years 2000–2022, in addition to providing up-to-date insights concerning educational outcomes. The software enables precise cross-country comparisons and thorough longitudinal studies by preserving consistency in variables and data structures, both of which are essential for spotting and solving educational trends.
+The learningtower package has been improved with the addition of the 2022 PISA data, providing researchers, educators, and policymakers with a useful tool for examining and comprehending student performance and school characteristics worldwide. This most recent version guarantees a consistent and thorough dataset covering the years 2000–2022, in addition to providing up-to-date insights concerning educational outcomes. The software enables precise cross-country comparisons and thorough longitudinal studies by preserving consistency in variables and data structures, both of which are essential for spotting and solving educational trends.
 
-The learningtower package offers a strong framework for investigating important topics in education, including socioeconomic effects, gender inequality, and the function of technology in the classroom. Users can explore the ways in which various factors, such as parental education levels and digital access, impact student accomplishment with this degree of exposure to comprehensive, curated data. This makes it possible for stakeholders to make data-driven choices that have a direct impact on educational policies and initiatives meant to raise educational quality and equity.
+The learningtower package offers a strong framework for investigating important topics in education, including socioeconomic effects, gender disparities, and the effect of technology assistance in the classroom. Package users can explore the ways in which various factors, such as parental education levels and digital access, impact student accomplishment with this degree of exposure to comprehensive, curated data. This makes it possible for stakeholders to make data-driven choices that have a direct impact on educational policies and initiatives meant to raise educational quality and equity.
 
 The learningtower package stresses the value of open, repeatable research in addition to its analytical capabilities. The package facilitates a collaborative environment where discoveries may be shared and validated across research groups by providing the data and tools in an easily accessible format. This openness promotes future developments in the discipline when new PISA data becomes available and enhances the validity of educational analyses.
 
 In the future, the learningtower package will continue to be updated with new PISA cycles, maintaining its usefulness and relevance as a vital resource for researching worldwide trends in education. The package's capacity to include new data will guarantee that it continues to be an essential tool for comprehending and resolving educational inequities as the educational landscape changes, especially in reaction to crises like the COVID-19 pandemic. Learningtower will promote evidence-based educational advancements with continued contributions and enhancements, eventually leading to a more effective and equitable global education system.
 
 
-# Reference
- 
-## Git respository of the report
+# Git respository of the report
 
 https://github.com/Shabarish161/Learningtower_Rpackage
 
