@@ -1014,8 +1014,18 @@ The learningtower package stresses the value of open, repeatable research in add
 
 In the future, the learningtower package will continue to be updated with new PISA cycles, maintaining its usefulness and relevance as a vital resource for researching worldwide trends in education. The package's capacity to include new data will guarantee that it continues to be an essential tool for comprehending and resolving educational inequities as the educational landscape changes, especially in reaction to crises like the COVID-19 pandemic. Learningtower will promote evidence-based educational advancements with continued contributions and enhancements, eventually leading to a more effective and equitable global education system.
 
+# Acknowledgement
 
-# Git respository of the report
+We acknowledge the use of [ChatGPT](https://chat.openai.com/) to refine the academic language and accuracy of my own work, including grammatical structures, punctuation and vocabulary. The output was then modified further to better represent our team's own tone and style of writing.
 
-https://github.com/Shabarish161/Learningtower_Rpackage
+In addition, We would like to express our sincere gratitude to the developers of the learningtower package, it is through their previous cumulative efforts that we are able to compose and finish this report.
+
+
+# Git respository of the project
+
+- Presentation and Report: https://github.com/Shabarish161/Learningtower_Rpackage
+
+- Official package respository: https://github.com/kevinwang09/learningtower/?tab=readme-ov-file
+
+- Masonry respository: https://github.com/kevinwang09/learningtower_masonry/tree/master
 
